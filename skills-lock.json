@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "412-frameworks-quarkus-panache": {
+      "source": "jabrena/cursor-rules-java",
+      "sourceType": "github",
+      "skillPath": "skills/412-frameworks-quarkus-panache/SKILL.md",
+      "computedHash": "305796ffb817615288bd78311e931f8e9ac469e2b8e6726f9c0e00613a7da340"
+    },
+    "quarkus": {
+      "source": "mindrally/skills",
+      "sourceType": "github",
+      "skillPath": "quarkus/SKILL.md",
+      "computedHash": "0269bfeb540f2c59cc5b4be50c5bdd4f17a54d07de6a6d5f9a79670e2a2161f4"
+    }
+  }
+}
