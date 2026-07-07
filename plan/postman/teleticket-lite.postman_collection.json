@@ -1,0 +1,242 @@
+{
+  "info": {
+    "name": "Teleticket Lite",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "f1a2b3c4-d5e6-7890-abcd-ef0123456789"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "idToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "auth",
+      "item": [
+        {
+          "name": "Login (CLIENT / STAFF / OWNER / ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"client@example.com\",\n  \"password\": \"YourPassword123!\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json && json.idToken) {",
+                  "  pm.collectionVariables.set('idToken', json.idToken);",
+                  "  console.log('idToken stored for subsequent requests');",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "item": [
+        {
+          "name": "Create CLIENT account (form-data + optional photo)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "email", "value": "client@example.com", "type": "text" },
+                { "key": "phoneNumber", "value": "+51987654321", "type": "text" },
+                { "key": "fullname", "value": "Jane Doe", "type": "text" },
+                { "key": "birthdate", "value": "1995-04-12", "type": "text" },
+                { "key": "dni", "value": "12345678", "type": "text" },
+                { "key": "photo", "type": "file", "src": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create STAFF account + affiliate to event (OWNER only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{idToken}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/staff",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "staff"]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "email", "value": "staff@example.com", "type": "text" },
+                { "key": "phoneNumber", "value": "+51987611122", "type": "text" },
+                { "key": "fullname", "value": "Staff Member", "type": "text" },
+                { "key": "birthdate", "value": "1990-01-01", "type": "text" },
+                { "key": "dni", "value": "87654321", "type": "text" },
+                { "key": "eventId", "value": "1", "type": "text" },
+                { "key": "photo", "type": "file", "src": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create OWNER account (ADMIN only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{idToken}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/owner",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "owner"]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "email", "value": "owner@example.com", "type": "text" },
+                { "key": "phoneNumber", "value": "+51987600099", "type": "text" },
+                { "key": "fullname", "value": "Event Owner", "type": "text" },
+                { "key": "birthdate", "value": "1985-06-15", "type": "text" },
+                { "key": "dni", "value": "11223344", "type": "text" },
+                { "key": "photo", "type": "file", "src": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get my profile (any authenticated role)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{idToken}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "me"]
+            }
+          }
+        },
+        {
+          "name": "Update my profile (any authenticated role)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{idToken}}" },
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "me"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullname\": \"Jane Doe Updated\",\n  \"phoneNumber\": \"+51987659999\",\n  \"birthdate\": \"1995-04-12\",\n  \"dni\": \"12345678\"\n}",
+              "options": { "raw": { "language": "json" } }
+            }
+          }
+        },
+        {
+          "name": "Upload / replace my profile picture (form-data)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{idToken}}" },
+              { "key": "Accept", "value": "application/json" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/me/photo",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "me", "photo"]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "photo", "type": "file", "src": "" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete my profile picture",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{idToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/me/photo",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "me", "photo"]
+            }
+          }
+        },
+        {
+          "name": "Delete account by id (ADMIN only)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{idToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/2",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "2"]
+            }
+          }
+        },
+        {
+          "name": "Desaffiliate staff user from event (OWNER / ADMIN)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{idToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/3/staff/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["users", "3", "staff", "1"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
