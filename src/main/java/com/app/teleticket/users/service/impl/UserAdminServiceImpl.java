@@ -1,0 +1,43 @@
+package com.app.teleticket.users.service.impl;
+
+import com.app.teleticket.users.entity.UserEntity;
+import com.app.teleticket.users.exception.UserException;
+import com.app.teleticket.users.repository.StaffRepository;
+import com.app.teleticket.users.repository.UserRepository;
+import com.app.teleticket.users.service.CognitoUserService;
+import com.app.teleticket.users.service.UserAdminService;
+import com.app.teleticket.users.service.UserPhotoStorageService;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+
+@ApplicationScoped
+public class UserAdminServiceImpl implements UserAdminService {
+
+    @Inject
+    UserRepository UserRepository;
+
+    @Inject
+    StaffRepository staffRepository;
+
+    @Inject
+    CognitoUserService cognito;
+
+    @Inject
+    UserPhotoStorageService photoStorage;
+
+    @Override
+    @Transactional
+    public void deleteAccount(Long userId) {
+        UserEntity user = UserRepository.findById(userId);
+        if (user == null) {
+            throw new UserException(404, "User not found");
+        }
+        staffRepository.deleteByUser(user.id.intValue());
+        if (user.photoKeyName != null) {
+            photoStorage.delete(user.photoKeyName);
+        }
+        UserRepository.delete(user);
+        cognito.adminDeleteUser(user.email);
+    }
+}
