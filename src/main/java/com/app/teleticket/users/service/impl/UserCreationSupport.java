@@ -33,11 +33,11 @@ public class UserCreationSupport {
     @Transactional
     public UserEntity create(UserCreateDTO dto, String role, byte[] photo, String contentType) {
         assertUnique(dto);
-        cognito.adminCreateUser(dto.email, dto.phoneNumber, role);
+        cognito.adminCreateUser(dto.getEmail(), dto.getPhoneNumber(), role, dto.getPassword());
         UserEntity entity;
         try {
             entity = mapper.toEntity(dto);
-            entity.role = role;
+            entity.setRole(role);
             UserRepository.persist(entity);
             UserRepository.flush();
             if (photo != null && photo.length > 0) {
@@ -46,7 +46,7 @@ public class UserCreationSupport {
             }
         } catch (RuntimeException e) {
             try {
-                cognito.adminDeleteUser(dto.email);
+                cognito.adminDeleteUser(dto.getEmail());
             } catch (RuntimeException cleanup) {
                 // best-effort; original error retained
             }
@@ -59,19 +59,19 @@ public class UserCreationSupport {
         if (contentType == null || !ALLOWED_PHOTO_TYPES.contains(contentType)) {
             throw new UserException(415, "Only jpg, jpeg and png images are allowed");
         }
-        String url = photoStorage.upload(entity.id, contentType, bytes);
-        entity.photoUrl = url;
-        entity.photoKeyName = extractKey(url);
+        String url = photoStorage.upload(entity.getId(), contentType, bytes);
+        entity.setPhotoUrl(url);
+        entity.setPhotoKeyName(extractKey(url));
     }
 
     private void assertUnique(UserCreateDTO dto) {
-        if (UserRepository.existsByEmail(dto.email)) {
+        if (UserRepository.existsByEmail(dto.getEmail())) {
             throw new UserException(409, "Email already in use");
         }
-        if (UserRepository.existsByDni(dto.dni)) {
+        if (UserRepository.existsByDni(dto.getDni())) {
             throw new UserException(409, "DNI already in use");
         }
-        if (UserRepository.existsByPhoneNumber(dto.phoneNumber)) {
+        if (UserRepository.existsByPhoneNumber(dto.getPhoneNumber())) {
             throw new UserException(409, "Phone number already in use");
         }
     }

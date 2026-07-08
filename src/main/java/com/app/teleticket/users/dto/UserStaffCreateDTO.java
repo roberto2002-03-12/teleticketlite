@@ -7,5 +7,13 @@ public class UserStaffCreateDTO extends UserCreateDTO {
 
     @NotNull
     @Positive
-    public Integer eventId;
+    private Integer eventId;
+
+    public Integer getEventId() {
+        return eventId;
+    }
+
+    public void setEventId(Integer eventId) {
+        this.eventId = eventId;
+    }
 }

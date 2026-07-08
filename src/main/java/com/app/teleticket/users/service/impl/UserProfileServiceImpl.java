@@ -38,18 +38,18 @@ public class UserProfileServiceImpl implements UserProfileService {
     public UserResponseDTO updateMe(String email, UserUpdateDTO dto) {
         UserEntity user = findByEmail(email);
 
-        if (!user.dni.equals(dto.dni) && UserRepository.existsByDni(dto.dni)) {
+        if (!user.getDni().equals(dto.getDni()) && UserRepository.existsByDni(dto.getDni())) {
             throw new UserException(409, "DNI already in use");
         }
-        if (!user.phoneNumber.equals(dto.phoneNumber)
-                && UserRepository.existsByPhoneNumber(dto.phoneNumber)) {
+        if (!user.getPhoneNumber().equals(dto.getPhoneNumber())
+                && UserRepository.existsByPhoneNumber(dto.getPhoneNumber())) {
             throw new UserException(409, "Phone number already in use");
         }
 
-        user.fullname = dto.fullname;
-        user.phoneNumber = dto.phoneNumber;
-        user.birthdate = dto.birthdate;
-        user.dni = dto.dni;
+        user.setFullname(dto.getFullname());
+        user.setPhoneNumber(dto.getPhoneNumber());
+        user.setBirthdate(dto.getBirthdate());
+        user.setDni(dto.getDni());
         return mapper.toResponse(user);
     }
 
@@ -63,12 +63,12 @@ public class UserProfileServiceImpl implements UserProfileService {
         if (bytes == null || bytes.length == 0) {
             throw new UserException(400, "Empty file");
         }
-        if (user.photoKeyName != null) {
-            photoStorage.delete(user.photoKeyName);
+        if (user.getPhotoKeyName() != null) {
+            photoStorage.delete(user.getPhotoKeyName());
         }
-        String url = photoStorage.upload(user.id, contentType, bytes);
-        user.photoUrl = url;
-        user.photoKeyName = extractKey(url);
+        String url = photoStorage.upload(user.getId(), contentType, bytes);
+        user.setPhotoUrl(url);
+        user.setPhotoKeyName(extractKey(url));
         return mapper.toResponse(user);
     }
 
@@ -76,10 +76,10 @@ public class UserProfileServiceImpl implements UserProfileService {
     @Transactional
     public void deletePhoto(String email) {
         UserEntity user = findByEmail(email);
-        if (user.photoKeyName != null) {
-            photoStorage.delete(user.photoKeyName);
-            user.photoKeyName = null;
-            user.photoUrl = null;
+        if (user.getPhotoKeyName() != null) {
+            photoStorage.delete(user.getPhotoKeyName());
+            user.setPhotoKeyName(null);
+            user.setPhotoUrl(null);
         }
     }
 

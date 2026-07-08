@@ -33,11 +33,11 @@ public class UserAdminServiceImpl implements UserAdminService {
         if (user == null) {
             throw new UserException(404, "User not found");
         }
-        staffRepository.deleteByUser(user.id.intValue());
-        if (user.photoKeyName != null) {
-            photoStorage.delete(user.photoKeyName);
+        staffRepository.deleteByUser(user.getId().intValue());
+        if (user.getPhotoKeyName() != null) {
+            photoStorage.delete(user.getPhotoKeyName());
         }
         UserRepository.delete(user);
-        cognito.adminDeleteUser(user.email);
+        cognito.adminDeleteUser(user.getEmail());
     }
 }

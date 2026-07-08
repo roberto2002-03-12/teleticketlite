@@ -10,6 +10,7 @@ import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminAddUse
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserRequest;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserResponse;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminDeleteUserRequest;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminSetUserPasswordRequest;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AttributeType;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.CognitoIdentityProviderException;
 
@@ -24,7 +25,7 @@ public class CognitoUserServiceImpl implements CognitoUserService {
     String userPoolId;
 
     @Override
-    public void adminCreateUser(String email, String phoneNumber, String role) {
+    public void adminCreateUser(String email, String phoneNumber, String role, String password) {
         try {
             AdminCreateUserResponse response = cognito.adminCreateUser(AdminCreateUserRequest.builder()
                     .userPoolId(userPoolId)
@@ -41,6 +42,13 @@ public class CognitoUserServiceImpl implements CognitoUserService {
                     .userPoolId(userPoolId)
                     .username(response.user().username())
                     .groupName(role)
+                    .build());
+
+            cognito.adminSetUserPassword(AdminSetUserPasswordRequest.builder()
+                    .userPoolId(userPoolId)
+                    .username(response.user().username())
+                    .password(password)
+                    .permanent(true)
                     .build());
         } catch (CognitoIdentityProviderException e) {
             throw new UserException(502, "Cognito registration failed: " + e.getMessage());

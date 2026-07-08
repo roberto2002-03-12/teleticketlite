@@ -13,15 +13,15 @@ public class StaffEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    public Integer idStaff;
+    private Integer idStaff;
 
     @Id
     @Column(name = "user_id")
-    public Integer userId;
+    private Integer userId;
 
     @Id
     @Column(name = "event_id")
-    public Integer eventId;
+    private Integer eventId;
 
     public StaffEntity() {
     }

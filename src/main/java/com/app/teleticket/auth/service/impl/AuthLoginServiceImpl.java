@@ -35,14 +35,14 @@ public class AuthLoginServiceImpl implements AuthLoginService {
 
     @Override
     public LoginResponse login(LoginRequest request) {
-        String secretHash = computeSecretHash(request.email, clientId, clientSecret);
+        String secretHash = computeSecretHash(request.getEmail(), clientId, clientSecret);
         try {
             InitiateAuthResponse response = cognito.initiateAuth(InitiateAuthRequest.builder()
                     .authFlow(AuthFlowType.USER_PASSWORD_AUTH)
                     .clientId(clientId)
                     .authParameters(Map.of(
-                            "USERNAME", request.email,
-                            "PASSWORD", request.password,
+                            "USERNAME", request.getEmail(),
+                            "PASSWORD", request.getPassword(),
                             "SECRET_HASH", secretHash
                     ))
                     .build());

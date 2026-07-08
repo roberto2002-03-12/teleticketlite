@@ -16,34 +16,34 @@ public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    public Long id;
+    private Long id;
 
     @Column(nullable = false, unique = true, length = 105)
-    public String email;
+    private String email;
 
     @Column(nullable = false, unique = true, length = 305)
-    public String password;
+    private String password;
 
     @Column(name = "phone_number", nullable = false, length = 15)
-    public String phoneNumber;
+    private String phoneNumber;
 
     @Column(nullable = false, length = 105)
-    public String fullname;
+    private String fullname;
 
     @Column(name = "birthdate", nullable = false)
-    public LocalDate birthdate;
+    private LocalDate birthdate;
 
     @Column(nullable = false, unique = true, length = 8)
-    public String dni;
+    private String dni;
 
     @Column(name = "photo_url", length = 255)
-    public String photoUrl;
+    private String photoUrl;
 
     @Column(name = "photo_key_name", length = 105)
-    public String photoKeyName;
+    private String photoKeyName;
 
     @Column(nullable = false, length = 45)
-    public String role;
+    private String role;
 
     public Long getId() {
         return id;

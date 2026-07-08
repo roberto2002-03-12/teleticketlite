@@ -29,7 +29,7 @@ public class UserStaffServiceImpl implements UserStaffService {
     @Transactional
     public UserResponseDTO create(UserStaffCreateDTO dto, byte[] photo, String contentType) {
         var user = creation.create(dto, ROLE_STAFF, photo, contentType);
-        affiliateStaff(user.id, dto.eventId);
+        affiliateStaff(user.getId(), dto.getEventId());
         return mapper.toResponse(user);
     }
 

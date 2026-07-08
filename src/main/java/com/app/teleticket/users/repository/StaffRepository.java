@@ -24,7 +24,7 @@ public class StaffRepository implements PanacheRepository<StaffEntity> {
     public Integer findMaxIdStaff() {
         return find("ORDER BY idStaff DESC")
                 .firstResultOptional()
-                .map(s -> s.idStaff)
+                .map(StaffEntity::getIdStaff)
                 .orElse(0);
     }
 }

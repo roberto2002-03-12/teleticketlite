@@ -12,18 +12,50 @@ public class UserUpdateDTO {
 
     @NotBlank
     @Size(max = 105)
-    public String fullname;
+    private String fullname;
 
     @NotBlank
     @Size(max = 15)
     @Pattern(regexp = "^\\+?[0-9]{6,15}$")
-    public String phoneNumber;
+    private String phoneNumber;
 
     @NotNull
     @Past
-    public LocalDate birthdate;
+    private LocalDate birthdate;
 
     @NotBlank
     @Pattern(regexp = "^[0-9]{8}$")
-    public String dni;
+    private String dni;
+
+    public String getFullname() {
+        return fullname;
+    }
+
+    public void setFullname(String fullname) {
+        this.fullname = fullname;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public LocalDate getBirthdate() {
+        return birthdate;
+    }
+
+    public void setBirthdate(LocalDate birthdate) {
+        this.birthdate = birthdate;
+    }
+
+    public String getDni() {
+        return dni;
+    }
+
+    public void setDni(String dni) {
+        this.dni = dni;
+    }
 }
