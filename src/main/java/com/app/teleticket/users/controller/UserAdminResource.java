@@ -1,5 +1,6 @@
 package com.app.teleticket.users.controller;
 
+import com.app.teleticket.common.dto.ApiResponse;
 import com.app.teleticket.users.service.UserAdminService;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
@@ -8,7 +9,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 
 /**
@@ -25,8 +25,8 @@ public class UserAdminResource {
     @Path("/{id}")
     @RolesAllowed("ADMIN")
     @Operation(summary = "Delete an account by id")
-    public Response deleteAccount(@PathParam("id") Long id) {
+    public ApiResponse<Void> deleteAccount(@PathParam("id") Long id) {
         adminService.deleteAccount(id);
-        return Response.noContent().build();
+        return ApiResponse.ok(null);
     }
 }

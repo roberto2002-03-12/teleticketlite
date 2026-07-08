@@ -3,6 +3,7 @@ package com.app.teleticket.auth.controller;
 import com.app.teleticket.auth.dto.LoginRequest;
 import com.app.teleticket.auth.dto.LoginResponse;
 import com.app.teleticket.auth.service.AuthLoginService;
+import com.app.teleticket.common.dto.ApiResponse;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.Consumes;
@@ -23,7 +24,7 @@ public class AuthResource {
     @POST
     @Path("/login")
     @Operation(summary = "Login with email + password against AWS Cognito (USER_PASSWORD_AUTH)")
-    public LoginResponse login(@Valid LoginRequest request) {
-        return loginService.login(request);
+    public ApiResponse<LoginResponse> login(@Valid LoginRequest request) {
+        return ApiResponse.ok(loginService.login(request));
     }
 }

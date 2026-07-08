@@ -1,5 +1,6 @@
 package com.app.teleticket.users.controller;
 
+import com.app.teleticket.common.dto.ApiResponse;
 import com.app.teleticket.users.dto.UserCreateDTO;
 import com.app.teleticket.users.dto.UserCreateForm;
 import com.app.teleticket.users.dto.UserResponseDTO;
@@ -37,6 +38,8 @@ public class UserOwnerResource {
         UserResponseDTO created = ownerService.create(dto,
                 UserFormMapper.photoBytes(form.getPhoto()),
                 UserFormMapper.photoContentType(form.getPhoto()));
-        return Response.status(Response.Status.CREATED).entity(created).build();
+        return Response.status(Response.Status.CREATED)
+                .entity(ApiResponse.created(created))
+                .build();
     }
 }

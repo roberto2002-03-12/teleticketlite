@@ -5,6 +5,8 @@ import com.app.teleticket.users.dto.UserStaffCreateDTO;
 import com.app.teleticket.users.entity.StaffEntity;
 import com.app.teleticket.users.exception.UserException;
 import com.app.teleticket.users.repository.StaffRepository;
+import com.app.teleticket.users.service.CognitoUserService;
+import com.app.teleticket.users.service.UserPhotoStorageService;
 import com.app.teleticket.users.service.UserStaffService;
 import com.app.teleticket.users.utils.UserMapper;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -25,12 +27,46 @@ public class UserStaffServiceImpl implements UserStaffService {
     @Inject
     UserMapper mapper;
 
+    @Inject
+    CognitoUserService cognito;
+
+    @Inject
+    UserPhotoStorageService photoStorage;
+
     @Override
     @Transactional
     public UserResponseDTO create(UserStaffCreateDTO dto, byte[] photo, String contentType) {
         var user = creation.create(dto, ROLE_STAFF, photo, contentType);
-        affiliateStaff(user.getId(), dto.getEventId());
+        try {
+            affiliateStaff(user.getId(), dto.getEventId());
+        } catch (RuntimeException e) {
+            // DB rollback handled by @Transactional; AWS resources are not.
+            // Compensate: roll back the Cognito user and any uploaded S3 photo
+            // that were persisted by UserCreationSupport before the failure.
+            safeCognitoDelete(user.getEmail());
+            safePhotoDelete(user.getPhotoKeyName());
+            throw e;
+        }
         return mapper.toResponse(user);
+    }
+
+    private void safeCognitoDelete(String email) {
+        try {
+            cognito.adminDeleteUser(email);
+        } catch (RuntimeException ignored) {
+            // best-effort; original error retained
+        }
+    }
+
+    private void safePhotoDelete(String keyName) {
+        if (keyName == null || keyName.isBlank()) {
+            return;
+        }
+        try {
+            photoStorage.delete(keyName);
+        } catch (RuntimeException ignored) {
+            // best-effort; original error retained
+        }
     }
 
     @Override

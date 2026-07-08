@@ -1,5 +1,6 @@
 package com.app.teleticket.users.controller;
 
+import com.app.teleticket.common.dto.ApiResponse;
 import com.app.teleticket.users.dto.UserResponseDTO;
 import com.app.teleticket.users.dto.UserStaffCreateDTO;
 import com.app.teleticket.users.dto.UserStaffCreateForm;
@@ -39,16 +40,18 @@ public class UserStaffResource {
         UserResponseDTO created = staffService.create(dto,
                 UserFormMapper.photoBytes(form.getPhoto()),
                 UserFormMapper.photoContentType(form.getPhoto()));
-        return Response.status(Response.Status.CREATED).entity(created).build();
+        return Response.status(Response.Status.CREATED)
+                .entity(ApiResponse.created(created))
+                .build();
     }
 
     @DELETE
     @Path("/{userId}/staff/{eventId}")
     @RolesAllowed({"OWNER", "ADMIN"})
     @Operation(summary = "Desaffiliate a staff user from an event")
-    public Response desaffiliateStaff(@PathParam("userId") Integer userId,
-                                      @PathParam("eventId") Integer eventId) {
+    public ApiResponse<UserResponseDTO> desaffiliateStaff(@PathParam("userId") Integer userId,
+                                                          @PathParam("eventId") Integer eventId) {
         staffService.desaffiliate(userId, eventId);
-        return Response.noContent().build();
+        return ApiResponse.ok(null);
     }
 }

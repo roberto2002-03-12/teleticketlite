@@ -1,6 +1,7 @@
 package com.app.teleticket.users.controller;
 
 import com.app.teleticket.auth.service.AuthService;
+import com.app.teleticket.common.dto.ApiResponse;
 import com.app.teleticket.users.dto.UserCreateDTO;
 import com.app.teleticket.users.dto.UserCreateForm;
 import com.app.teleticket.users.dto.UserPhotoForm;
@@ -49,15 +50,17 @@ public class UserClientResource {
         UserResponseDTO created = clientService.create(dto,
                 UserFormMapper.photoBytes(form.getPhoto()),
                 UserFormMapper.photoContentType(form.getPhoto()));
-        return Response.status(Response.Status.CREATED).entity(created).build();
+        return Response.status(Response.Status.CREATED)
+                .entity(ApiResponse.created(created))
+                .build();
     }
 
     @GET
     @Path("/me")
     @RolesAllowed({"CLIENT", "STAFF", "OWNER", "ADMIN"})
     @Operation(summary = "Get the authenticated user's own profile")
-    public UserResponseDTO getMe() {
-        return profileService.getMe(auth.currentEmail());
+    public ApiResponse<UserResponseDTO> getMe() {
+        return ApiResponse.ok(profileService.getMe(auth.currentEmail()));
     }
 
     @PUT
@@ -65,8 +68,8 @@ public class UserClientResource {
     @RolesAllowed({"CLIENT", "STAFF", "OWNER", "ADMIN"})
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(summary = "Edit the authenticated user's own profile")
-    public UserResponseDTO updateMe(@Valid UserUpdateDTO dto) {
-        return profileService.updateMe(auth.currentEmail(), dto);
+    public ApiResponse<UserResponseDTO> updateMe(@Valid UserUpdateDTO dto) {
+        return ApiResponse.ok(profileService.updateMe(auth.currentEmail(), dto));
     }
 
     @POST
@@ -74,18 +77,18 @@ public class UserClientResource {
     @RolesAllowed({"CLIENT", "STAFF", "OWNER", "ADMIN"})
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Operation(summary = "Upload or replace the authenticated user's profile picture")
-    public UserResponseDTO uploadPhoto(@BeanParam @Valid UserPhotoForm form) {
-        return profileService.uploadPhoto(auth.currentEmail(),
+    public ApiResponse<UserResponseDTO> uploadPhoto(@BeanParam @Valid UserPhotoForm form) {
+        return ApiResponse.ok(profileService.uploadPhoto(auth.currentEmail(),
                 UserFormMapper.photoBytes(form.getPhoto()),
-                UserFormMapper.photoContentType(form.getPhoto()));
+                UserFormMapper.photoContentType(form.getPhoto())));
     }
 
     @DELETE
     @Path("/me/photo")
     @RolesAllowed({"CLIENT", "STAFF", "OWNER", "ADMIN"})
     @Operation(summary = "Delete the authenticated user's profile picture")
-    public Response deletePhoto() {
+    public ApiResponse<UserResponseDTO> deletePhoto() {
         profileService.deletePhoto(auth.currentEmail());
-        return Response.noContent().build();
+        return ApiResponse.ok(null);
     }
 }

@@ -34,7 +34,7 @@ public class UserCreationSupport {
     public UserEntity create(UserCreateDTO dto, String role, byte[] photo, String contentType) {
         assertUnique(dto);
         cognito.adminCreateUser(dto.getEmail(), dto.getPhoneNumber(), role, dto.getPassword());
-        UserEntity entity;
+        UserEntity entity = null;
         try {
             entity = mapper.toEntity(dto);
             entity.setRole(role);
@@ -49,6 +49,13 @@ public class UserCreationSupport {
                 cognito.adminDeleteUser(dto.getEmail());
             } catch (RuntimeException cleanup) {
                 // best-effort; original error retained
+            }
+            if (entity != null && entity.getPhotoKeyName() != null) {
+                try {
+                    photoStorage.delete(entity.getPhotoKeyName());
+                } catch (RuntimeException cleanup) {
+                    // best-effort; original error retained
+                }
             }
             throw e;
         }
