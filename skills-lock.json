@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "402-frameworks-quarkus-rest": {
+      "source": "jabrena/cursor-rules-java",
+      "sourceType": "github",
+      "skillPath": "skills/402-frameworks-quarkus-rest/SKILL.md",
+      "computedHash": "d46367224c8bd1aba201994d72acb36e8d0c735fa9c3904391f8f5769500e120"
+    },
     "412-frameworks-quarkus-panache": {
       "source": "jabrena/cursor-rules-java",
       "sourceType": "github",

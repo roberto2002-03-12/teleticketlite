@@ -19,6 +19,11 @@ public class UserCreateForm {
     @Size(max = 105)
     public String email;
 
+    @FormParam("password")
+    @NotBlank
+    @Size(max = 32, min = 8)
+    public String password;
+
     @FormParam("phoneNumber")
     @NotBlank
     @Size(max = 15)

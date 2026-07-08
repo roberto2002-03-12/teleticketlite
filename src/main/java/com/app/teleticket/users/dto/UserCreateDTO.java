@@ -17,6 +17,10 @@ public class UserCreateDTO {
     public String email;
 
     @NotBlank
+    @Size(max = 32, min = 8)
+    public String password;
+
+    @NotBlank
     @Size(max = 15)
     @Pattern(regexp = "^\\+?[0-9]{6,15}$")
     public String phoneNumber;

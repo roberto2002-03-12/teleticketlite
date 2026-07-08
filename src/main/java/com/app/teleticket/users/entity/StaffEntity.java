@@ -1,10 +1,6 @@
 package com.app.teleticket.users.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -15,7 +11,8 @@ import java.util.Objects;
 public class StaffEntity {
 
     @Id
-    @Column(name = "id_staff")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     public Integer idStaff;
 
     @Id
@@ -62,5 +59,29 @@ public class StaffEntity {
         public int hashCode() {
             return Objects.hash(idStaff, userId, eventId);
         }
+    }
+
+    public Integer getIdStaff() {
+        return idStaff;
+    }
+
+    public void setIdStaff(Integer idStaff) {
+        this.idStaff = idStaff;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public Integer getEventId() {
+        return eventId;
+    }
+
+    public void setEventId(Integer eventId) {
+        this.eventId = eventId;
     }
 }

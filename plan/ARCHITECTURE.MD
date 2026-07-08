@@ -82,7 +82,7 @@ USE `teleticketlite` ;
 DROP TABLE IF EXISTS `teleticketlite`.`user` ;
 
 CREATE TABLE IF NOT EXISTS `teleticketlite`.`user` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `email` VARCHAR(105) NOT NULL,
   `phone_number` VARCHAR(15) NOT NULL,
   `fullname` VARCHAR(105) NOT NULL,
@@ -103,7 +103,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `teleticketlite`.`event_owner` ;
 
 CREATE TABLE IF NOT EXISTS `teleticketlite`.`event_owner` (
-  `id_event_owner` INT NOT NULL,
+  `id_event_owner` INT NOT NULL AUTO_INCREMENT,
   `ruc` VARCHAR(15) NOT NULL,
   `enabled` TINYINT(1) NOT NULL,
   `user_id` INT NOT NULL,
@@ -123,7 +123,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `teleticketlite`.`event_category` ;
 
 CREATE TABLE IF NOT EXISTS `teleticketlite`.`event_category` (
-  `id_event_category` INT NOT NULL,
+  `id_event_category` INT NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL,
   `description` VARCHAR(105) NULL,
   PRIMARY KEY (`id_event_category`))
@@ -136,7 +136,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `teleticketlite`.`event` ;
 
 CREATE TABLE IF NOT EXISTS `teleticketlite`.`event` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `title` VARCHAR(45) NOT NULL,
   `description` TEXT NOT NULL,
   `max_people` INT NOT NULL,
@@ -171,7 +171,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `teleticketlite`.`event_images` ;
 
 CREATE TABLE IF NOT EXISTS `teleticketlite`.`event_images` (
-  `id_event_img` INT NOT NULL,
+  `id_event_img` INT NOT NULL AUTO_INCREMENT,
   `url` VARCHAR(255) NOT NULL,
   `key` VARCHAR(105) NOT NULL,
   `index` INT NOT NULL,
@@ -193,7 +193,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `teleticketlite`.`event_assistants` ;
 
 CREATE TABLE IF NOT EXISTS `teleticketlite`.`event_assistants` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `register_date` TIMESTAMP NOT NULL,
   `event_id` INT NOT NULL,
   `user_id` INT NOT NULL,
@@ -219,7 +219,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `teleticketlite`.`qr_ticket` ;
 
 CREATE TABLE IF NOT EXISTS `teleticketlite`.`qr_ticket` (
-  `id` INT NOT NULL,
+  `id` INT NOT NULL AUTO_INCREMENT,
   `qr_url` VARCHAR(255) NOT NULL,
   `qr_key` VARCHAR(255) NOT NULL,
   `alredy_applied` TINYINT(1) NOT NULL,
@@ -247,7 +247,7 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `teleticketlite`.`staff` ;
 
 CREATE TABLE IF NOT EXISTS `teleticketlite`.`staff` (
-  `id_staff` INT NOT NULL,
+  `id_staff` INT NOT NULL AUTO_INCREMENT,
   `user_id` INT NOT NULL,
   `event_id` INT NOT NULL,
   PRIMARY KEY (`id_staff`, `user_id`, `event_id`),
