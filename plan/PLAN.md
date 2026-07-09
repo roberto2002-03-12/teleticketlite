@@ -33,7 +33,29 @@ NOTE: If Quarkus with a specific AWS SDK already provides these functions, omit 
 
 ### events
 #### Purpose:
-Se encarga de todas las operaciones CRUD de la tabla evento, solo los usuarios con el rol de "OWNER" pueden realizar acciones sobre eventos propios más no de otros. Los usuarios con rol "STAFF" solo pueden modificar la descripción o categoria del evento.
+Este modulo se encarga de la gestión de las tablas "event", "event_category" y "event_images".
+
+El proposito de "event" es ser la tabla en la cual se registra un evento en los cuales el usuario con rol "CLIENT" puede inscribirse al evento a través de la tabla "qr_ticket" (se desarrollara más adelante, no en este modulo). El usuario que crea el evento (rol: "OWNER" y "ADMIN") pueden agregar varias imagenes hasta 8, estas imagenes tienen un orden, si se llega 8 imagenes en el formulario, el primero tendrá el index 0 hasta llegar a 7 según el orden de las imagenes llegadas. El usuario también puede asignar categoria al evento, siendo solamente una.
+
+La creación de un evento se puede definir lo siguiente:
+- title
+- description
+- max_people
+- address
+- available
+- finished
+- start_date
+- finish_date
+- owner_id (se obtiene el id del usuario que realiza la petición, detalles más adelante)
+- category_id (id de "event_category" existente)
+
+Para poder ver el tipo de atributo, revisa `plan/ARCHITECTURE.MD`
+
+¿Cómo obtener el "owner_id"?
+Mediante el token obtenido obtienes el email del usuario que esta logueado, con ese email obtienes el id del usuario, luego de obtener el id de usuario debes crear un método para obtener el id_event_onwer de la tabla "event_owner" buscando mediante "user_id" con el id de usuario obtenido mediante el email del token.
+
+#### Use of cases
+- crear evento (SOLO)
 
 Los usuarios con el rol "CLIENT" solo pueden leer eventos que esten activos, los de rol "OWNER" y "STAFF" solo sus eventos propios sin importar el estado.
 

@@ -141,8 +141,6 @@ CREATE TABLE IF NOT EXISTS `teleticketlite`.`event` (
   `description` TEXT NOT NULL,
   `max_people` INT NOT NULL,
   `address` VARCHAR(65) NOT NULL,
-  `is_free` TINYINT(1) NOT NULL,
-  `price` DECIMAL(12,2) NOT NULL,
   `available` TINYINT(1) NOT NULL,
   `finished` TINYINT(1) NOT NULL,
   `start_date` TIMESTAMP NOT NULL,
@@ -194,7 +192,7 @@ DROP TABLE IF EXISTS `teleticketlite`.`event_assistants` ;
 
 CREATE TABLE IF NOT EXISTS `teleticketlite`.`event_assistants` (
   `id` INT NOT NULL AUTO_INCREMENT,
-  `register_date` TIMESTAMP NOT NULL,
+  `register_date` TIMESTAMP,
   `event_id` INT NOT NULL,
   `user_id` INT NOT NULL,
   PRIMARY KEY (`id`),
