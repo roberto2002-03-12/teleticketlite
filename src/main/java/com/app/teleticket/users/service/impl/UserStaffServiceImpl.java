@@ -78,7 +78,7 @@ public class UserStaffServiceImpl implements UserStaffService {
         }
     }
 
-    private void affiliateStaff(Long userId, Integer eventId) {
+    private void affiliateStaff(Integer userId, Integer eventId) {
         if (staffRepository.findByUserAndEvent(userId.intValue(), eventId).isPresent()) {
             throw new UserException(409, "User is already affiliated to this event");
         }

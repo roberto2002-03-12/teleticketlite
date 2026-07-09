@@ -1,6 +1,7 @@
 package com.app.teleticket.users.controller;
 
 import com.app.teleticket.common.dto.ApiResponse;
+import com.app.teleticket.users.dto.DisaffiliateStaffEventRequest;
 import com.app.teleticket.users.dto.UserResponseDTO;
 import com.app.teleticket.users.dto.UserStaffCreateDTO;
 import com.app.teleticket.users.dto.UserStaffCreateForm;
@@ -14,14 +15,13 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 
 /**
- * Everything related to the STAFF role: creation + event affiliation, and desaffiliation.
+ * Everything related to the STAFF role: creation + event affiliation, and disaffiliate.
  */
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON)
@@ -32,7 +32,7 @@ public class UserStaffResource {
 
     @POST
     @Path("/staff")
-    @RolesAllowed("OWNER")
+    @RolesAllowed({"OWNER", "ADMIN"})
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Operation(summary = "Create a STAFF account, affiliate it to an event, optional profile picture")
     public Response createStaff(@BeanParam @Valid UserStaffCreateForm form) {
@@ -46,12 +46,11 @@ public class UserStaffResource {
     }
 
     @DELETE
-    @Path("/{userId}/staff/{eventId}")
+    @Path("/staff/disaffiliate")
     @RolesAllowed({"OWNER", "ADMIN"})
-    @Operation(summary = "Desaffiliate a staff user from an event")
-    public ApiResponse<UserResponseDTO> desaffiliateStaff(@PathParam("userId") Integer userId,
-                                                          @PathParam("eventId") Integer eventId) {
-        staffService.desaffiliate(userId, eventId);
+    @Operation(summary = "Disaffiliate a staff user from an event")
+    public ApiResponse<UserResponseDTO> disaffiliateStaff(@Valid DisaffiliateStaffEventRequest request) {
+        staffService.desaffiliate(request.getUserId(), request.getEventId());
         return ApiResponse.ok(null);
     }
 }

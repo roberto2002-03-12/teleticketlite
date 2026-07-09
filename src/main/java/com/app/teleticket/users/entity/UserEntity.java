@@ -16,7 +16,7 @@ public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long id;
+    private Integer id;
 
     @Column(nullable = false, unique = true, length = 105)
     private String email;
@@ -45,11 +45,11 @@ public class UserEntity {
     @Column(nullable = false, length = 45)
     private String role;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

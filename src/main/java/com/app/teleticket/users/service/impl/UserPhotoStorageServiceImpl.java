@@ -30,7 +30,7 @@ public class UserPhotoStorageServiceImpl implements UserPhotoStorageService {
     String region;
 
     @Override
-    public String upload(Long userId, String contentType, byte[] bytes) {
+    public String upload(Integer userId, String contentType, byte[] bytes) {
         String extension = extensionFromContentType(contentType);
         String objectKey = PHOTO_PREFIX + userId + "/" + UUID.randomUUID() + "." + extension;
         try {
