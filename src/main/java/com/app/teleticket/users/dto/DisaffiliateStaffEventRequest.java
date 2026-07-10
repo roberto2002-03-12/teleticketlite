@@ -1,27 +1,32 @@
 package com.app.teleticket.users.dto;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import org.jboss.resteasy.reactive.RestForm;
 
 public class DisaffiliateStaffEventRequest {
-    @NotBlank
-    int userId;
 
-    @NotBlank
-    int eventId;
+    @NotNull
+    @Positive
+    private Integer userId;
 
-    public int getUserId() {
+    @NotNull
+    @Positive
+    private Integer eventId;
+
+    public Integer getUserId() {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 
-    public int getEventId() {
+    public Integer getEventId() {
         return eventId;
     }
 
-    public void setEventId(int eventId) {
+    public void setEventId(Integer eventId) {
         this.eventId = eventId;
     }
 }

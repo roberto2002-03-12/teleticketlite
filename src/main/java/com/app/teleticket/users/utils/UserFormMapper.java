@@ -2,6 +2,10 @@ package com.app.teleticket.users.utils;
 
 import com.app.teleticket.users.dto.UserCreateDTO;
 import com.app.teleticket.users.dto.UserCreateForm;
+import com.app.teleticket.users.dto.UserOwnerChangeDTO;
+import com.app.teleticket.users.dto.UserOwnerChangeForm;
+import com.app.teleticket.users.dto.UserOwnerCreateDTO;
+import com.app.teleticket.users.dto.UserOwnerCreateForm;
 import com.app.teleticket.users.dto.UserStaffCreateDTO;
 import com.app.teleticket.users.dto.UserStaffCreateForm;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
@@ -39,6 +43,24 @@ public final class UserFormMapper {
         dto.setBirthdate(form.getBirthdate());
         dto.setDni(form.getDni());
         dto.setEventId(form.getEventId());
+        return dto;
+    }
+
+    public static UserOwnerCreateDTO toOwnerCreateDTO(UserOwnerCreateForm form) {
+        UserOwnerCreateDTO dto = new UserOwnerCreateDTO();
+        dto.setEmail(form.getEmail());
+        dto.setPassword(form.getPassword());
+        dto.setPhoneNumber(form.getPhoneNumber());
+        dto.setFullname(form.getFullname());
+        dto.setBirthdate(form.getBirthdate());
+        dto.setDni(form.getDni());
+        dto.setRuc(form.getRuc());
+        return dto;
+    }
+
+    public static UserOwnerChangeDTO toOwnerChangeDTO(UserOwnerChangeForm form) {
+        UserOwnerChangeDTO dto = new UserOwnerChangeDTO();
+        dto.setRuc(form.getRuc());
         return dto;
     }
 

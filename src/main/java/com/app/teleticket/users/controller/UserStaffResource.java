@@ -45,12 +45,23 @@ public class UserStaffResource {
                 .build();
     }
 
+    @POST
+    @Path("/staff/affiliate")
+    @RolesAllowed({"OWNER", "ADMIN"})
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Affiliate an existing STAFF user to an event (form: userId, eventId)")
+    public ApiResponse<UserResponseDTO> affiliateStaff(@Valid DisaffiliateStaffEventRequest request) {
+        staffService.affiliate(request);
+        return ApiResponse.ok(null);
+    }
+
     @DELETE
     @Path("/staff/disaffiliate")
     @RolesAllowed({"OWNER", "ADMIN"})
+    @Consumes(MediaType.APPLICATION_JSON)
     @Operation(summary = "Disaffiliate a staff user from an event")
     public ApiResponse<UserResponseDTO> disaffiliateStaff(@Valid DisaffiliateStaffEventRequest request) {
-        staffService.desaffiliate(request.getUserId(), request.getEventId());
+        staffService.desaffiliate(request);
         return ApiResponse.ok(null);
     }
 }

@@ -66,4 +66,17 @@ public class CognitoUserServiceImpl implements CognitoUserService {
             throw new UserException(502, "Cognito deletion failed: " + e.getMessage());
         }
     }
+
+    @Override
+    public void addToGroup(String email, String group) {
+        try {
+            cognito.adminAddUserToGroup(AdminAddUserToGroupRequest.builder()
+                    .userPoolId(userPoolId)
+                    .username(email)
+                    .groupName(group)
+                    .build());
+        } catch (CognitoIdentityProviderException e) {
+            throw new UserException(502, "Cognito add-to-group failed: " + e.getMessage());
+        }
+    }
 }
