@@ -35,12 +35,13 @@ This file is the canonical context for any AI coding agent (Cursor, opencode, Co
     └── java/com/app/teleticket/
         ├── auth/              ← auth module
         ├── common/            ← shared DTOs and exception mappers (cross-cutting)
+        ├── events/            ← events module
         └── users/             ← users module
 ```
 
 > ⚠️ `plan/ARCHITECTURE.MD` still shows the original Spanish-named scaffolding (`Usuario*`) and an early package layout. It is out of date — use this file and the actual `src/main/java` tree as the authoritative source of structure.
 
-Modules planned but **not yet implemented**: `events`, `qr`, `assistance`. Do not create stubs for them unless asked.
+Modules planned but **not yet implemented**: `qr`, `assistance`. Do not create stubs for them unless asked.
 
 ---
 
@@ -211,7 +212,99 @@ The shared self-service `/me` endpoints (any authenticated role, backed by `User
 
 ---
 
-## 6. Endpoints (current state)
+## 6. The `events` module
+
+Implements `event`, `event_category`, `event_images` tables (see `plan/ARCHITECTURE.MD`). Roles: CLIENT read active events, OWNER/ADMIN full CRUD on owned events, STAFF view affiliated + edit only description/category, ADMIN also creates categories.
+
+### 6.1 Entity layer
+
+| File | Notes |
+|---|---|
+| `entity/EventEntity.java` | `@Entity @Table(name = "event")`. Does **NOT** extend `PanacheEntity` — plain JPA entity with private fields + getters/setters (matches the `users/entity/` style). `id` is `@Id @GeneratedValue(strategy = IDENTITY) int` (MySQL `AUTO_INCREMENT`). `description` mapped `columnDefinition = "TEXT"`. `ownerId` / `categoryId` are plain Integer FK columns (no JPA relations) to avoid N+1 and lazy-load pitfalls. All field access via getters/setters, never direct field access. |
+| `entity/EventCategoryEntity.java` | Same style — plain `@Entity`, private fields + accessors. `id` is `int IDENTITY`. Fields: `name`, `description`. |
+| `entity/EventImageEntity.java` | Same style. `id` is `int IDENTITY`. `keyName` mapped to column `` `key` `` (backtick-quoted because `key` is reserved in MySQL), `index` mapped to `` `index` `` (also reserved), `eventId` (Integer FK). All access via getters/setters. |
+
+### 6.2 DTOs
+
+| File | Purpose |
+|---|---|
+| `dto/EventCreateForm.java` | `multipart/form-data` form for `POST /events`. `@RestForm` fields + `List<FileUpload> photos` (up to 8, enforced in service). |
+| `dto/EventCreateDTO.java` | Internal DTO built from the form in the controller. Carries `List<EventImageInput> photos`. No validation annotations (the form has them). |
+| `dto/EventImageInput.java` | `record(byte[] bytes, String contentType)` — passes parsed photo bytes to the service so `FileUpload` stays in the controller. |
+| `dto/EventUpdateDTO.java` | JSON body for `PUT /events/{id}` (OWNER/ADMIN, full event field update). |
+| `dto/EventStaffUpdateDTO.java` | JSON body for `PUT /events/{id}/staff` (STAFF — only `description` + `categoryId`). |
+| `dto/EventCategoryCreateDTO.java` | JSON body for `POST /events/categories` (ADMIN). |
+| `dto/EventResponseDTO.java` | record with all event fields + embedded `List<EventImageResponseDTO> images`. |
+| `dto/EventImageResponseDTO.java` | record `{ id, url, index }`. |
+| `dto/EventCategoryResponseDTO.java` | record `{ id, name, description }`. |
+| `dto/PageResponse.java` | generic `record<T>(List<T> items, long total, int page, int pageSize, int totalPages)` used for paginated CLIENT search results. |
+
+### 6.3 Repository layer
+
+- `repository/EventRepository.java` — `searchActive`/`countActive` (CLIENT search with filters: `title` LIKE, `startDate>=`, `finishDate<=`, `categoryId=`, always `available = true`); uses **`Map<String, Object>`** for parameterized queries (NOT the deprecated `io.quarkus.panache.common.Parameters` — that overload is deprecated since Quarkus 3.34); `findByOwnerId`; `findEventsForStaffUser(userId)` (cross-module JPQL through `StaffEntity` from the `users` module — works because both entities are in the same persistence unit); declares an overload `findById(Integer)` returning `Optional` so callers can use Integer path params — `PanacheRepository<Entity>` defaults the id type to `Long`, so you must add a custom `findById(Integer)` overload whenever the entity id is `int`/`Integer`.
+- `repository/EventCategoryRepository.java` — `findByName` (uniqueness check on create); also declares `findById(Integer)` returning `Optional` (same Long-vs-Integer reason as above).
+- `repository/EventImageRepository.java` — `findByEventId`, `deleteByEventId`.
+
+### 6.4 Service layer
+
+All services are interfaces in `service/` with impl in `service/impl/`, split by role/use-case group:
+
+| Service | Responsibility | Endpoint callers |
+|---|---|---|
+| `EventOwnerService` | create (with images), update owned, cancel owned, list own | `OWNER`, `OWNER`+`ADMIN` |
+| `EventStaffService` | list affiliated events, update description+category only on affiliated events | `STAFF` |
+| `EventClientService` | paginated search of active events (12/page, page out of range → 400), select one active event by id | `CLIENT` |
+| `EventCategoryService` | create category (admin), list all categories | `ADMIN` create; any auth role list |
+| `EventImageStorageService` | S3 wrapper: `upload(eventId, index, contentType, bytes)`, `delete(key)`, `deleteAll(keys)` for compensation. Key prefix: `event-images/{eventId}/{index}-{uuid}.{jpg|png}`. jpg/jpeg/png only. |
+
+### 6.5 Resource layer
+
+| File | Path prefix | Endpoints |
+|---|---|---|
+| `controller/EventResource.java` | `/events` | `POST /events` (OWNER, ADMIN, multipart); `PUT /events/{id}` (OWNER, ADMIN, JSON); `PUT /events/{id}/cancel` (OWNER, ADMIN); `GET /events/me` (OWNER, ADMIN); `GET /events/me/staff` (STAFF); `PUT /events/{id}/staff` (STAFF, JSON); `GET /events` (CLIENT, query params + pagination); `GET /events/{id}` (CLIENT) |
+| `controller/EventCategoryResource.java` | `/events/categories` | `POST /events/categories` (ADMIN, JSON); `GET /events/categories` (any auth role) |
+
+### 6.6 Owner resolution
+
+`owner_id` is **NOT** sent by the client. The controller calls `AuthService.currentEmail()`, passes it to `EventOwnerService`, which resolves:
+1. `UserRepository.findByEmail(email)` → `UserEntity.id`
+2. `EventOwnerRepository.findByUserId(userId)` → `EventOwnerEntity.idEventOwner`
+
+If the caller has no `event_owner` row → `403 "Current user is not an event owner"` (via `EventException`, not `UserException`).
+
+### 6.7 Image upload + compensation
+
+`EventOwnerServiceImpl.create`:
+1. Validate `photos.size() ≤ 8` and category exists.
+2. Persist `EventEntity`, `flush()` to get the generated `id`.
+3. For each photo (in received order, index 0..N-1): validate content-type, upload to S3, persist `EventImageEntity` with `index` and `eventId`. Track uploaded S3 keys.
+4. If any photo step fails: delete already-uploaded S3 keys (best-effort), then rethrow — the `@Transactional` boundary rolls back the DB rows (event + image entities).
+
+### 6.8 Pagination rules
+
+- 12 events per page (constant `PAGE_SIZE` in `EventClientServiceImpl`).
+- `available = true` is forced server-side for all CLIENT search/list calls.
+- Page index is zero-based via `@QueryParam("page") @DefaultValue("0")`.
+- Out-of-range pages → `400 "Page N is out of range (0..M)"`. A search returning zero events reports `totalPages = 1` so `page = 0` is still valid.
+
+### 6.9 Exception layer
+
+`exception/EventException.java` (status + message) + `exception/EventExceptionMapper.java` → `ApiResponse` envelope. Separately declared from `UserException`/`AuthException` — do not unify (matches the per-module rule).
+
+Status codes used:
+
+| Code | Meaning |
+|---|---|
+| 400 | too many images (>8); empty image bytes; page out of range |
+| 403 | non-owner trying to manage an event they don't own; non-staff trying to edit an event they're not affiliated to; caller has no `event_owner` row |
+| 404 | event / category not found |
+| 409 | category name already in use |
+| 415 | photo content-type not in {image/jpeg, image/png} |
+| 502 | S3 SDK failure |
+
+---
+
+## 7. Endpoints (current state)
 
 | Method | Path | Auth | Body | Service method |
 |---|---|---|---|---|
@@ -227,10 +320,20 @@ The shared self-service `/me` endpoints (any authenticated role, backed by `User
 | POST | `/users/me/photo` | CLIENT / STAFF / OWNER / ADMIN | multipart (single file) | `UserProfileService.uploadPhoto` |
 | DELETE | `/users/me/photo` | CLIENT / STAFF / OWNER / ADMIN | — | `UserProfileService.deletePhoto` |
 | DELETE | `/users/{id}` | `ADMIN` | — | `UserAdminService.deleteAccount` |
+| POST | `/events` | `OWNER` or `ADMIN` | multipart (form + up to 8 photos) | `EventOwnerService.create` |
+| PUT | `/events/{id}` | `OWNER` or `ADMIN` | JSON | `EventOwnerService.update` |
+| PUT | `/events/{id}/cancel` | `OWNER` or `ADMIN` | — | `EventOwnerService.cancel` |
+| GET | `/events/me` | `OWNER` or `ADMIN` | — | `EventOwnerService.listOwn` |
+| GET | `/events/me/staff` | `STAFF` | — | `EventStaffService.listAffiliated` |
+| PUT | `/events/{id}/staff` | `STAFF` | JSON | `EventStaffService.updateStaffFields` |
+| GET | `/events` | `CLIENT` | query params + pagination | `EventClientService.search` |
+| GET | `/events/{id}` | `CLIENT` | — | `EventClientService.getActiveById` |
+| POST | `/events/categories` | `ADMIN` | JSON | `EventCategoryService.create` |
+| GET | `/events/categories` | any authenticated role | — | `EventCategoryService.list` |
 
 ---
 
-## 7. Configuration (`src/main/resources/application.properties`)
+## 8. Configuration (`src/main/resources/application.properties`)
 
 Read these before touching anything that talks to AWS or Cognito.
 
@@ -292,7 +395,7 @@ quarkus.hibernate-orm.log.sql=false
 
 ---
 
-## 8. Build & Verify (skill-mandated)
+## 9. Build & Verify (skill-mandated)
 
 Before any change, run **`./mvnw.cmd clean compile`** (Windows) or **`./mvnw clean compile`** (Unix). After changes, run **`./mvnw.cmd clean verify`**. Both must end with `BUILD SUCCESS`.
 
@@ -302,7 +405,7 @@ There are no tests yet. `mvn verify` runs Quarkus augmentation (build-time CDI /
 
 ---
 
-## 9. Known gotchas (do not trip on these again)
+## 10. Known gotchas (do not trip on these again)
 
 - **`@MultipartForm` was deprecated** in Quarkus 3.37.1 (marked for removal) and has been replaced project-wide. Form beans (`UserCreateForm`, `UserStaffCreateForm`, `UserOwnerCreateForm`, `UserPhotoForm`) use `@RestForm` (`org.jboss.resteasy.reactive.RestForm`) on each field, and resource methods bind them with `@BeanParam` instead of `@MultipartForm`. Do not reintroduce `@FormParam`/`@MultipartForm`.
 - **Passwords**: DB stores a bcrypt hash (`io.quarkus.elytron.security.common.BcryptUtil.bcryptHash(...)`, computed in `UserMapper.toEntity`), never the plaintext. Cognito gets the same plaintext password set as **permanent** via `AdminSetUserPassword` inside `CognitoUserServiceImpl.adminCreateUser` (called right after `AdminAddUserToGroup`, still inside the same try/catch so a failure triggers the usual Cognito cleanup path). Requires the `quarkus-elytron-security-common` dependency (added to `pom.xml`) — do not add a second bcrypt library.
@@ -315,10 +418,14 @@ There are no tests yet. `mvn verify` runs Quarkus augmentation (build-time CDI /
 - **OWNER registration creates an `event_owner` row.** `UserOwnerServiceImpl.create` persists an `EventOwnerEntity(ruc, enabled=true, userId)` after `UserCreationSupport.create`. `UserOwnerServiceImpl.changeToOwner` also creates the row when promoting an existing user. `UserAdminServiceImpl.deleteAccount` deletes the row before deleting the user.
 - **Hardcoded IAM keys in `application.properties`** are long-lived (`AKIA...`). They do not expire like STS tokens, but they should still be rotated and never logged or committed elsewhere.
 - **Spanish comments remain in `users/config/UserConfig.java`** (`"USAR CUANDO PASES A LABROLE"`). This violates §3.1; replace with English comments if you edit that file.
+- **Entities must NOT extend `PanacheEntity`** and must NOT use public fields. Every entity is a plain `@Entity` with private fields + getters/setters (see `users/entity/` for the canonical style). Repositories `implements PanacheRepository<Entity>` still work with plain entities — `PanacheRepository` doesn't require the entity to extend `PanacheEntity`. Access all entity state via getters/setters, never direct field access.
+- **No deprecated Panache APIs.** `find(String, Parameters)`, `count(String, Parameters)`, `list(String, Parameters)`, `stream(String, Parameters)` are deprecated since Quarkus 3.34. Use `find(String, Map<String, Object>)` / `count(String, Map<String, Object>)` instead. Build the map with `new HashMap<>()` and `params.put(...)`.
+- **PanacheRepository defaults the id type to Long.** When an entity's `@Id` is `int`/`Integer` (MySQL `INT AUTO_INCREMENT`), the inherited `findById(Long)` won't accept an Integer. Each repository for such entities must declare its own `Optional<Entity> findById(Integer id)` overload (using `find("id", id).firstResultOptional()`).
+- **No deprecated packages at all.** Before using any Quarkus/Panache API, check whether it is marked `@Deprecated` in the current Quarkus version. If so, find the replacement. Deprecated APIs are forbidden.
 
 ---
 
-## 10. Postman collection
+## 11. Postman collection
 
 `plan/postman/teleticket-lite.postman_collection.json` (v2.1.0). Import in Postman. Variables: `{{baseUrl}}` (default `http://localhost:8080`) and `{{idToken}}` (auto-set by the login request's test script from `response.idToken`). Photo file fields have empty `src` — pick a file in the Postman UI before sending.
 
@@ -326,13 +433,17 @@ The ID token is what must be sent as `Authorization: Bearer {{idToken}}` for `@R
 
 ---
 
-## 11. Module map for future work
+## 12. Module map for future work
 
 | Module | Status | Touch these |
 |---|---|---|
 | `auth` | done (login + identity) | add refresh-token flow when needed |
 | `users` | done | photo upload of arbitrary size, pagination, more roles |
-| `events` | not started | create `events/` with `controller`, `entity/EventEntity`, `entity/EventCategoryEntity`, `entity/EventImageEntity`, services; do **not** touch `users/` unless you must |
+| `events` | done | owner resolution + image upload + compensation; category management; STAFF description+category edit; CLIENT search + pagination |
+| `qr` | not started | — |
+| `assistance` | not started | — |
+
+When adding a new module, follow §3 strictly: package layout, English names, interface+impl for every service, no Spanish identifiers, no new ad-hoc globals.
 | `qr` | not started | — |
 | `assistance` | not started | — |
 
