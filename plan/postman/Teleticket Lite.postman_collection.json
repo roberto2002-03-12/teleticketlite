@@ -1,0 +1,984 @@
+{
+  "info": {
+    "_postman_id": "d57227b3-3899-44e1-b8de-2de4a53eb473",
+    "name": "Teleticket Lite",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "31856244"
+  },
+  "item": [
+    {
+      "name": "auth",
+      "item": [
+        {
+          "name": "Login (CLIENT / STAFF / OWNER / ADMIN)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+              "exec": [
+                "var json = pm.response.json();",
+                "if (json && json?.data) {",
+                "  pm.collectionVariables.set('idToken', json.data.idToken);",
+                "  pm.collectionVariables.set('accessToken', json.data.accessToken);",
+                "  console.log('idToken stored in collectionVariables (required for RolesAllowed because groups are in the ID token)');",
+                "}"
+              ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"robertocg21dev@gmail.com\",\n  \"password\": \"contrasena@123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "events",
+      "item": [
+        {
+          "name": "owner / admin",
+          "item": [
+            {
+              "name": "Create event (OWNER / ADMIN, multipart, up to 8 images)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "title",
+                      "value": "Rock Concert",
+                      "type": "text"
+                    },
+                    {
+                      "key": "description",
+                      "value": "Live rock music event downtown.",
+                      "type": "text"
+                    },
+                    {
+                      "key": "maxPeople",
+                      "value": "500",
+                      "type": "text"
+                    },
+                    {
+                      "key": "address",
+                      "value": "Av. Javier Prado 1234, Lima",
+                      "type": "text"
+                    },
+                    {
+                      "key": "available",
+                      "value": "true",
+                      "type": "text"
+                    },
+                    {
+                      "key": "finished",
+                      "value": "false",
+                      "type": "text"
+                    },
+                    {
+                      "key": "startDate",
+                      "value": "2026-08-01T20:00:00",
+                      "type": "text"
+                    },
+                    {
+                      "key": "finishDate",
+                      "value": "2026-08-02T02:00:00",
+                      "type": "text"
+                    },
+                    {
+                      "key": "categoryId",
+                      "value": "1",
+                      "type": "text"
+                    },
+                    {
+                      "key": "photos",
+                      "type": "file",
+                      "src": ""
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/events",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "events"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update event (OWNER / ADMIN, JSON)",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"title\": \"Updated Concert\",\n  \"description\": \"Updated description.\",\n  \"maxPeople\": 600,\n  \"address\": \"Av. Arequipa 4321, Lima\",\n  \"available\": true,\n  \"finished\": false,\n  \"startDate\": \"2026-08-10T20:00:00\",\n  \"finishDate\": \"2026-08-11T02:00:00\",\n  \"categoryId\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/events/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "events",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Cancel event (OWNER / ADMIN)",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/events/1/cancel",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "events",
+                    "1",
+                    "cancel"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "List my events (OWNER / ADMIN)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/events/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "events",
+                    "me"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "staff",
+          "item": [
+            {
+              "name": "List my affiliated events (STAFF)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/events/me/staff",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "events",
+                    "me",
+                    "staff"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update event description and category (STAFF, JSON)",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"description\": \"New staff description.\",\n  \"categoryId\": 1\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/events/1/staff",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "events",
+                    "1",
+                    "staff"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "client",
+          "item": [
+            {
+              "name": "Search active events (CLIENT)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/events?title=Concert&startDate=2026-01-01T00:00:00&finishDate=2026-12-31T23:59:59&categoryId=1&page=0",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "events"
+                  ],
+                  "query": [
+                    {
+                      "key": "title",
+                      "value": "Concert"
+                    },
+                    {
+                      "key": "startDate",
+                      "value": "2026-01-01T00:00:00"
+                    },
+                    {
+                      "key": "finishDate",
+                      "value": "2026-12-31T23:59:59"
+                    },
+                    {
+                      "key": "categoryId",
+                      "value": "1"
+                    },
+                    {
+                      "key": "page",
+                      "value": "0"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get active event by id (CLIENT)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/events/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "events",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "categories",
+          "item": [
+            {
+              "name": "Create category (ADMIN, JSON)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Music\",\n  \"description\": \"Live music events\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/events/categories",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "events",
+                    "categories"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "List categories (any authenticated role)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/events/categories",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "events",
+                    "categories"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "users",
+      "item": [
+        {
+          "name": "staff",
+          "item": [
+            {
+              "name": "Create STAFF account + affiliate to event (OWNER only)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "email",
+                      "value": "staff2@example.com",
+                      "type": "text"
+                    },
+                    {
+                      "key": "phoneNumber",
+                      "value": "+51987611121",
+                      "type": "text"
+                    },
+                    {
+                      "key": "fullname",
+                      "value": "Staff Member",
+                      "type": "text"
+                    },
+                    {
+                      "key": "birthdate",
+                      "value": "1990-01-01",
+                      "type": "text"
+                    },
+                    {
+                      "key": "dni",
+                      "value": "87654322",
+                      "type": "text"
+                    },
+                    {
+                      "key": "eventId",
+                      "value": "1",
+                      "type": "text"
+                    },
+                    {
+                      "key": "photo",
+                      "type": "file",
+                      "value": ""
+                    },
+                    {
+                      "key": "password",
+                      "value": "password",
+                      "type": "text",
+                      "uuid": "cbafbded-1ddd-48de-bcfe-284bb3b83848"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users/staff",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "staff"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Affiliate staff to event",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"userId\": 3,\r\n    \"eventId\": 1\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users/staff/affiliate",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "staff",
+                    "affiliate"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "owner",
+          "item": [
+            {
+              "name": "Create OWNER account (ADMIN only)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "email",
+                      "value": "owner2@example.com",
+                      "type": "text"
+                    },
+                    {
+                      "key": "phoneNumber",
+                      "value": "+51987600199",
+                      "type": "text"
+                    },
+                    {
+                      "key": "fullname",
+                      "value": "Event Owner",
+                      "type": "text"
+                    },
+                    {
+                      "key": "birthdate",
+                      "value": "1985-06-15",
+                      "type": "text"
+                    },
+                    {
+                      "key": "dni",
+                      "value": "11223341",
+                      "type": "text"
+                    },
+                    {
+                      "key": "photo",
+                      "type": "file",
+                      "value": ""
+                    },
+                    {
+                      "key": "password",
+                      "value": "password",
+                      "type": "text",
+                      "uuid": "380998e0-8fca-42c9-8e8c-99e109b20d33"
+                    },
+                    {
+                      "key": "ruc",
+                      "value": "123456789123",
+                      "type": "text",
+                      "uuid": "12ef4503-f0ae-48d9-bb51-81567002f551"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users/owner",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "owner"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Convert CLIENT to OWNER",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{accessToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer  {{accessToken}}",
+                    "type": "text",
+                    "disabled": true
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"ruc\": \"123456789101\"\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users/5/owner",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "5",
+                    "owner"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Create CLIENT account (form-data + optional photo)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "email",
+                  "value": "robertocg23dev@gmail.com",
+                  "type": "text"
+                },
+                {
+                  "key": "phoneNumber",
+                  "value": "+51925368243",
+                  "type": "text"
+                },
+                {
+                  "key": "fullname",
+                  "value": "Roberto Contreras Gonzales OWNER",
+                  "type": "text"
+                },
+                {
+                  "key": "birthdate",
+                  "value": "2002-03-12",
+                  "type": "text"
+                },
+                {
+                  "key": "dni",
+                  "value": "81133323",
+                  "type": "text"
+                },
+                {
+                  "key": "photo",
+                  "type": "file",
+                  "src": "/C:/Users/Roberto/Pictures/490294707_1227186529410733_4040393529342565544_n.jpg"
+                },
+                {
+                  "key": "password",
+                  "value": "contrasena@123",
+                  "type": "text",
+                  "uuid": "02f73ce3-cb0d-4d5c-9d07-87873d08c73a"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get my profile (any authenticated role)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update my profile (any authenticated role)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullname\": \"Vicuña\",\n  \"phoneNumber\": \"+51987659999\",\n  \"birthdate\": \"1995-04-12\",\n  \"dni\": \"12345676\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Upload / replace my profile picture (form-data)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "photo",
+                  "type": "file",
+                  "src": "/C:/Users/Roberto/Pictures/hisoka.JPG"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/me/photo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "me",
+                "photo"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete my profile picture",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/me/photo",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "me",
+                "photo"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete account by id (ADMIN only)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/users/2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Desaffiliate staff user from event (OWNER / ADMIN)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\": 3,\r\n    \"eventId\": 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/users/3/staff/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "users",
+                "3",
+                "staff",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "idToken",
+      "value": ""
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    }
+  ]
+}
