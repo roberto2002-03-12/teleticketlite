@@ -51,7 +51,6 @@ there are some main modules such as "config" that contains the main configuratio
 - auth
 - events
 - qr
-- assistance
 
 ## Tables:
 MySQL 8.0

@@ -34,8 +34,11 @@ This file is the canonical context for any AI coding agent (Cursor, opencode, Co
     ├── docker/                ← Dockerfile variants (ignore unless asked)
     └── java/com/app/teleticket/
         ├── auth/              ← auth module
+        ├── common/            ← shared DTOs and exception mappers (cross-cutting)
         └── users/             ← users module
 ```
+
+> ⚠️ `plan/ARCHITECTURE.MD` still shows the original Spanish-named scaffolding (`Usuario*`) and an early package layout. It is out of date — use this file and the actual `src/main/java` tree as the authoritative source of structure.
 
 Modules planned but **not yet implemented**: `events`, `qr`, `assistance`. Do not create stubs for them unless asked.
 
@@ -88,13 +91,13 @@ Do not merge these. Each class is one role/purpose (per `CORRECTION.MD` §3).
 
 ### 3.5 HTTP boundary rules
 
-- All create endpoints accept `multipart/form-data` (not JSON) so the photo file can travel in the same request. Form DTOs (`UserCreateForm`, `UserStaffCreateForm`, `UserPhotoForm`) carry `@RestForm` fields (`org.jboss.resteasy.reactive.RestForm`) + `FileUpload photo`. Resource methods bind these forms with `@BeanParam` (not the deprecated `@MultipartForm`).
+- All create endpoints accept `multipart/form-data` (not JSON) so the photo file can travel in the same request. Form DTOs (`UserCreateForm`, `UserStaffCreateForm`, `UserOwnerCreateForm`, `UserPhotoForm`) carry `@RestForm` fields (`org.jboss.resteasy.reactive.RestForm`) + `FileUpload photo`. Resource methods bind these forms with `@BeanParam` (not the deprecated `@MultipartForm`).
 - `UserCreateForm` / `UserStaffCreateForm` also carry a `password` field (`@NotBlank @Size(min = 8, max = 32)`), forwarded to `UserCreationSupport` for both the DB (hashed) and Cognito (permanent) password — see §3.6.
 - Update endpoints (`PUT /users/me`) accept JSON.
 - Service methods receive `byte[] photo, String contentType` — never `FileUpload` in the service layer. The controller converts multipart to bytes.
-- Validation: `@Valid` on the form DTO; constraints declared on each `@FormParam` field.
+- Validation: `@Valid` on the form DTO; constraints declared on each `@RestForm` field only if for formdata forms, json forms skipt it.
 - Auth: `@RolesAllowed("OWNER")` etc. on role-gated endpoints. Public endpoints (e.g. `POST /users`) have no role annotation. Token validation is automatic via quarkus-oidc.
-- Errors: throw module exception (`UserException` / `AuthException`) — mapped to JSON `{ "error": "..." }` by the module's `ExceptionMapper`. **Do not** return JAX-RS `Response` from service methods.
+- Errors: throw module exception (`UserException` / `AuthException`) — mapped by the module's `ExceptionMapper` to an `ApiResponse` error envelope (see §9). **Do not** return JAX-RS `Response` from service methods.
 
 ### 3.6 Cognito + DB compensation flow
 
@@ -125,14 +128,14 @@ auth/
   dto/LoginRequest.java              { email, password } — @NotBlank both
   dto/LoginResponse.java             { accessToken, idToken, refreshToken, expiresIn, tokenType }
   exception/AuthException.java       status + message
-  exception/AuthExceptionMapper.java maps to { "error": "..." } JSON
+  exception/AuthExceptionMapper.java maps to `ApiResponse` error envelope
   service/AuthService.java           interface — currentEmail() (extracts "email" claim from JsonWebToken)
   service/AuthLoginService.java      interface — login(LoginRequest) → LoginResponse
   service/impl/AuthServiceImpl.java
   service/impl/AuthLoginServiceImpl.java  Cognito InitiateAuth (USER_PASSWORD_AUTH) + SECRET_HASH
 ```
 
-`AuthService.currentEmail()` is the **only** method other modules should call to identify the authenticated user (used by `UserProfileService` via `UserResource`).
+`AuthService.currentEmail()` is the **only** method other modules should call to identify the authenticated user (used by `UserProfileService` via `UserClientResource`).
 
 `AuthLoginServiceImpl` computes `SECRET_HASH = Base64(HMAC-SHA256(username + clientId, clientSecret))` because the backend app client has a `client-secret` (`ALLOW_USER_PASSWORD_AUTH` flow). Required for any `InitiateAuth` against this client.
 
@@ -144,33 +147,42 @@ auth/
 
 | File | Notes |
 |---|---|
-| `entity/UserEntity.java` | `@Entity @Table(name = "user")`. Extends `PanacheEntity` but **redeclares** `id` with `@Id @GeneratedValue(strategy = IDENTITY)` to use MySQL `AUTO_INCREMENT` (not Hibernate's sequence emul-table). |
-| `entity/StaffEntity.java` | Composite PK via `@IdClass(StaffEntity.StaffId)`. Fields: `idStaff`, `userId`, `eventId`. `idStaff` is `@Id` only — no `@GeneratedValue` (JPA doesn't support it inside `@IdClass`); app assigns via `findMaxIdStaff()+1` in `UserStaffServiceImpl`. |
+| `entity/UserEntity.java` | `@Entity @Table(name = "user")`. `id` uses `@Id @GeneratedValue(strategy = IDENTITY)` for MySQL `AUTO_INCREMENT`. |
+| `entity/EventOwnerEntity.java` | `@Entity @Table(name = "event_owner")`. `idEventOwner` uses `IDENTITY`; stores `ruc`, `enabled`, `userId`. Created automatically when an OWNER account is registered and when an existing user is promoted to OWNER. |
+| `entity/StaffEntity.java` | Composite PK via `@IdClass(StaffEntity.StaffId)`. Fields: `idStaff`, `userId`, `eventId`. `idStaff` has `@GeneratedValue(strategy = IDENTITY)` (Hibernate accepts this inside `@IdClass` with MySQL); `UserStaffServiceImpl` does **not** assign it manually. `StaffRepository.findMaxIdStaff()` exists but is currently unused. |
 | `entity/StaffEntity.StaffId` | inner class, `Serializable` + `equals` + `hashCode` over all 3 fields. |
 
 ### 5.2 DTOs
 
 | File | Purpose |
 |---|---|
-| `dto/UserCreateDTO.java` | Plain DTO used internally by services (`email`, `phoneNumber`, `fullname`, `birthdate`, `dni`). Built from the form in the controller. |
+| `dto/UserCreateDTO.java` | Plain DTO used internally by services (`email`, `phoneNumber`, `fullname`, `birthdate`, `dni`, `password`). Built from the form in the controller. |
 | `dto/UserCreateForm.java` | `multipart/form-data` form for `POST /users` (CLIENT). |
 | `dto/UserStaffCreateDTO.java` | Extends `UserCreateDTO`, adds `eventId`. |
 | `dto/UserStaffCreateForm.java` | multipart form for `POST /users/staff`. |
+| `dto/UserOwnerCreateDTO.java` | Extends `UserCreateDTO`, adds `ruc`. |
+| `dto/UserOwnerCreateForm.java` | multipart form for `POST /users/owner` (ADMIN only). |
+| `dto/UserOwnerChangeDTO.java` | Plain DTO with `ruc` used when promoting an existing user to OWNER. |
+| `dto/UserOwnerChangeForm.java` | JSON form for `POST /users/{id}/owner` (ADMIN only). |
 | `dto/UserUpdateDTO.java` | JSON body for `PUT /users/me` (no `email` — identity is immutable for the lifetime of the token). |
 | `dto/UserPhotoForm.java` | multipart form with a single `FileUpload photo` for `POST /users/me/photo`. |
 | `dto/UserResponseDTO.java` | record returned by every user endpoint. |
+| `dto/DisaffiliateStaffEventRequest.java` | JSON body for staff affiliate/disaffiliate endpoints (`userId`, `eventId`). |
 
 ### 5.3 Repository layer
 
-- `repository/UserRepository.java` — `PanacheRepository<UserEntity>`. Methods: `findByEmail`, `findByDni`, `findByPhoneNumber`, `existsByEmail/Dni/PhoneNumber`. **Always parameterized** (positional `?1`); never concatenate user input.
-- `repository/StaffRepository.java` — `PanacheRepository<StaffEntity>`. Methods: `findByUserAndEvent`, `deleteByUserAndEvent`, `deleteByUser`, `findMaxIdStaff`.
+- `repository/UserRepository.java` — `PanacheRepository<UserEntity>`. Methods: `findByEmail`, `findByDni`, `findByPhoneNumber`, `existsByEmail/Dni/PhoneNumber`. **Always parameterized**; never concatenate user input.
+- `repository/StaffRepository.java` — `PanacheRepository<StaffEntity>`. Methods: `findByUserAndEvent`, `deleteByUserAndEvent`, `deleteByUser`, `findMaxIdStaff` (currently unused).
+- `repository/EventOwnerRepository.java` — `PanacheRepository<EventOwnerEntity>`. Methods: `findByUserId`, `deleteByUserId`.
 
 ### 5.4 Service layer
 
-- `service/CognitoUserService.java` + `impl/CognitoUserServiceImpl.java` — wrapper around `CognitoIdentityProviderClient` (`adminCreateUser`, `adminDeleteUser`). Translates `CognitoIdentityProviderException` → `UserException(502)`.
+- `service/CognitoUserService.java` + `impl/CognitoUserServiceImpl.java` — wrapper around `CognitoIdentityProviderClient` (`adminCreateUser`, `adminDeleteUser`, `addToGroup`). Translates `CognitoIdentityProviderException` → `UserException(502)`.
 - `service/UserPhotoStorageService.java` + `impl/UserPhotoStorageServiceImpl.java` — S3 wrapper. Bucket name via `s3.bucket-name`, region via `quarkus.s3.aws.region`. Key prefix: `profile-pictures/{userId}/{uuid}.{ext}`. Public URL pattern: `https://{bucket}.s3.{region}.amazonaws.com/{key}`. jpg/jpeg/png only (`image/jpeg` → `.jpg`, `image/png` → `.png`).
 - `service/UserCreationSupport.java` — shared `@Transactional` flow described in §3.6. Injected by the three create services.
 - `service/UserClientService.java` / `UserStaffService.java` / `UserOwnerService.java` / `UserAdminService.java` / `UserProfileService.java` — role-specific services described in §3.4. All have `Impl` in `service/impl/`.
+- `UserOwnerService` has two methods: `create(UserOwnerCreateDTO, photo, contentType)` registers a new OWNER and creates the `event_owner` row; `changeToOwner(Long userId, UserOwnerChangeDTO)` promotes an existing user to OWNER and creates the `event_owner` row.
+- `UserStaffServiceImpl.create` and `UserOwnerServiceImpl.create` each add their own post-creation compensation: if the DB step after `UserCreationSupport.create` fails (staff affiliation or `event_owner` row), they delete the already-created Cognito user (and the S3 photo for staff) before rethrowing.
 
 ### 5.5 Resource layer
 
@@ -178,16 +190,16 @@ Split by role instead of one unified controller (see §3.4; a single `UserResour
 
 | File | Path prefix | Endpoints |
 |---|---|---|
-| `controller/UserClientResource.java` | `/users` | `POST /users` (register CLIENT, public); `GET/PUT /users/me`, `POST/DELETE /users/me/photo` (self-service, any role) |
-| `controller/UserStaffResource.java` | `/users` | `POST /users/staff` (OWNER); `DELETE /users/{userId}/staff/{eventId}` (OWNER, ADMIN) |
-| `controller/UserOwnerResource.java` | `/users` | `POST /users/owner` (ADMIN) |
+| `controller/UserClientResource.java` | `/users` | `POST /users` (register CLIENT, public); `GET/PUT /users/me`, `POST/DELETE /users/me/photo` (self-service, CLIENT/STAFF/OWNER/ADMIN) |
+| `controller/UserStaffResource.java` | `/users` | `POST /users/staff` (OWNER, ADMIN); `POST /users/staff/affiliate` (OWNER, ADMIN); `POST /users/staff/disaffiliate` (OWNER, ADMIN) |
+| `controller/UserOwnerResource.java` | `/users` | `POST /users/owner` (ADMIN); `POST /users/{id}/owner` (ADMIN, promote existing user to OWNER) |
 | `controller/UserAdminResource.java` | `/users` | `DELETE /users/{id}` (ADMIN) |
 
 The shared self-service `/me` endpoints (any authenticated role, backed by `UserProfileService`) live in `UserClientResource` since `/users` is their natural base path — there is no 5th controller for them. Map form DTOs to internal DTOs in the controller (via the shared `utils/UserFormMapper` helper); never let a `FileUpload` reach the service layer.
 
 ### 5.6 Exception layer
 
-`exception/UserException.java` (status + message) + `exception/UserExceptionMapper.java` (→ JSON `{ "error": "..." }`). Status codes used:
+`exception/UserException.java` (status + message) + `exception/UserExceptionMapper.java` (→ `ApiResponse` error envelope). Status codes used:
 
 | Code | Meaning |
 |---|---|
@@ -205,14 +217,16 @@ The shared self-service `/me` endpoints (any authenticated role, backed by `User
 |---|---|---|---|---|
 | POST | `/auth/login` | public | JSON `{ email, password }` | `AuthLoginService.login` |
 | POST | `/users` | public | multipart (form + optional photo) | `UserClientService.create` |
-| POST | `/users/staff` | `OWNER` | multipart (+ `eventId`) | `UserStaffService.create` |
-| POST | `/users/owner` | `ADMIN` | multipart | `UserOwnerService.create` |
-| GET | `/users/me` | any | — | `UserProfileService.getMe` |
-| PUT | `/users/me` | any | JSON | `UserProfileService.updateMe` |
-| POST | `/users/me/photo` | any | multipart (single file) | `UserProfileService.uploadPhoto` |
-| DELETE | `/users/me/photo` | any | — | `UserProfileService.deletePhoto` |
+| POST | `/users/staff` | `OWNER` or `ADMIN` | multipart (+ `eventId`) | `UserStaffService.create` |
+| POST | `/users/staff/affiliate` | `OWNER` or `ADMIN` | JSON `{ userId, eventId }` | `UserStaffService.affiliate` |
+| POST | `/users/staff/disaffiliate` | `OWNER` or `ADMIN` | JSON `{ userId, eventId }` | `UserStaffService.desaffiliate` |
+| POST | `/users/owner` | `ADMIN` | multipart (+ `ruc`) | `UserOwnerService.create` |
+| POST | `/users/{id}/owner` | `ADMIN` | JSON `{ ruc }` | `UserOwnerService.changeToOwner` |
+| GET | `/users/me` | CLIENT / STAFF / OWNER / ADMIN | — | `UserProfileService.getMe` |
+| PUT | `/users/me` | CLIENT / STAFF / OWNER / ADMIN | JSON | `UserProfileService.updateMe` |
+| POST | `/users/me/photo` | CLIENT / STAFF / OWNER / ADMIN | multipart (single file) | `UserProfileService.uploadPhoto` |
+| DELETE | `/users/me/photo` | CLIENT / STAFF / OWNER / ADMIN | — | `UserProfileService.deletePhoto` |
 | DELETE | `/users/{id}` | `ADMIN` | — | `UserAdminService.deleteAccount` |
-| DELETE | `/users/{userId}/staff/{eventId}` | `OWNER` or `ADMIN` | — | `UserStaffService.desaffiliate` |
 
 ---
 
@@ -223,9 +237,9 @@ Read these before touching anything that talks to AWS or Cognito.
 ### Cognito (always active, used by the SDK in dev AND prod)
 
 ```
-cognito.user-pool-id=us-east-1_Y3AVPF7cE
-cognito.client-id=6m496adbmi95ln3i1pta9tnj9s
-cognito.client-secret=126hu4uafeurrdld6c1ofnu0tpjeiprmuasofdnvf6vd9ae72bsu
+cognito.user-pool-id=us-east-1_s33irHMjI
+cognito.client-id=ffamd2su02og450pl37jm17q8
+cognito.client-secret=1t897uoild09is4e1ps87s9l3e6tescfss01nkp92vsb9ks65kka
 cognito.region=us-east-1
 ```
 
@@ -236,10 +250,10 @@ cognito.region=us-east-1
 ### OIDC (token validation, currently active in all profiles)
 
 ```
-quarkus.oidc.auth-server-url=https://cognito-idp.us-east-1.amazonaws.com/us-east-1_Y3AVPF7cE
-quarkus.oidc.client-id=6m496adbmi95ln3i1pta9tnj9s
+quarkus.oidc.auth-server-url=https://cognito-idp.us-east-1.amazonaws.com/us-east-1_s33irHMjI
+quarkus.oidc.client-id=ffamd2su02og450pl37jm17q8
 quarkus.oidc.application-type=service
-quarkus.oidc.token.issuer=https://cognito-idp.us-east-1.amazonaws.com/us-east-1_Y3AVPF7cE
+quarkus.oidc.token.issuer=https://cognito-idp.us-east-1.amazonaws.com/us-east-1_s33irHMjI
 quarkus.oidc.roles.role-claim-path=cognito:groups
 ```
 
@@ -247,23 +261,22 @@ quarkus.oidc.roles.role-claim-path=cognito:groups
 
 > ⚠️ The access token issued by Cognito does **not** carry `cognito:groups`. Only the **ID token** does. For local testing the client must send the **ID token** in `Authorization: Bearer`, or every `@RolesAllowed` will fail silently (no groups, looks like a permissions bug, not an auth error).
 
-### AWS credentials (currently STS temporary)
+### AWS credentials (currently long-lived IAM)
 
 ```
 quarkus.s3.aws.region=us-east-1
+quarkus.s3.devservices.enabled=false
 quarkus.s3.aws.credentials.type=static
 quarkus.s3.aws.credentials.static-provider.access-key-id=...
 quarkus.s3.aws.credentials.static-provider.secret-access-key=...
-quarkus.s3.aws.credentials.static-provider.session-token=...
 aws.credentials.access-key-id=...
 aws.credentials.secret-access-key=...
-aws.credentials.session-token=...
-s3.bucket-name=teleticket-lite-images
+s3.bucket-name=teleticket-lite-images-561547870320
 ```
 
 - The two blocks must be kept **in sync** — the quarkiverse S3 extension reads `quarkus.s3.aws.credentials.*`, while the raw SDK `CognitoIdentityProviderClient` (produced in `UserConfig`) reads `aws.credentials.*`.
-- The current keys are **STS temporary** (`ASIA...` prefix). They will expire (currently `2026-07-07T14:56:14Z`). When they do, the app will fail with `400: The security token included in the request is invalid`. Ask the user to refresh them via `aws configure export-credentials` in CloudShell and paste the JSON; never guess the values.
-- `UserConfig.java` builds `CognitoIdentityProviderClient` with `AwsSessionCredentials` (3-part: access + secret + session token). If the user later switches to long-lived IAM keys (`AKIA...` prefix, no session token), the implementation must change to `AwsBasicCredentials`.
+- The current keys are **long-lived IAM keys** (`AKIA...` prefix, no session token). `UserConfig.java` builds `CognitoIdentityProviderClient` with `AwsBasicCredentials`. If the user later switches to STS temporary credentials (`ASIA...` prefix + session token), the implementation must change to `AwsSessionCredentials` and add the `aws.credentials.session-token` property.
+- `quarkus.s3.devservices.enabled=false` disables the local S3 dev service so the app talks to the real S3 bucket.
 
 ### DB
 
@@ -273,10 +286,9 @@ quarkus.datasource.username=root
 quarkus.datasource.password=password
 quarkus.datasource.jdbc.url=jdbc:mysql://localhost:3306/teleticketlite
 quarkus.hibernate-orm.log.sql=false
-quarkus.hibernate-orm.database.generation=update
 ```
 
-- `database.generation=update` — Hibernate adds missing tables/columns on startup. With `IDENTITY` ids in place it does **not** create the `user_SEQ` emul-table. Keep it for dev; replace with Flyway/Liquibase for prod.
+- There is no `quarkus.hibernate-orm.database.generation` setting in the current properties. Hibernate defaults apply; add `quarkus.hibernate-orm.database.generation=update` for dev if you want schema auto-creation, but replace with Flyway/Liquibase for prod.
 
 ---
 
@@ -292,15 +304,17 @@ There are no tests yet. `mvn verify` runs Quarkus augmentation (build-time CDI /
 
 ## 9. Known gotchas (do not trip on these again)
 
-- **`@MultipartForm` was deprecated** in Quarkus 3.37.1 (marked for removal) and has been replaced project-wide. Form beans (`UserCreateForm`, `UserStaffCreateForm`, `UserPhotoForm`) use `@RestForm` (`org.jboss.resteasy.reactive.RestForm`) on each field, and resource methods bind them with `@BeanParam` instead of `@MultipartForm`. Do not reintroduce `@FormParam`/`@MultipartForm`.
+- **`@MultipartForm` was deprecated** in Quarkus 3.37.1 (marked for removal) and has been replaced project-wide. Form beans (`UserCreateForm`, `UserStaffCreateForm`, `UserOwnerCreateForm`, `UserPhotoForm`) use `@RestForm` (`org.jboss.resteasy.reactive.RestForm`) on each field, and resource methods bind them with `@BeanParam` instead of `@MultipartForm`. Do not reintroduce `@FormParam`/`@MultipartForm`.
 - **Passwords**: DB stores a bcrypt hash (`io.quarkus.elytron.security.common.BcryptUtil.bcryptHash(...)`, computed in `UserMapper.toEntity`), never the plaintext. Cognito gets the same plaintext password set as **permanent** via `AdminSetUserPassword` inside `CognitoUserServiceImpl.adminCreateUser` (called right after `AdminAddUserToGroup`, still inside the same try/catch so a failure triggers the usual Cognito cleanup path). Requires the `quarkus-elytron-security-common` dependency (added to `pom.xml`) — do not add a second bcrypt library.
 - **`UserException` vs `AuthException`** — they have identical shape but are separate classes per module. Do not unify; do not share a mapper.
+- **Error response format** — module mappers now return `com.app.teleticket.common.dto.ApiResponse` envelopes: `{ "status": "error", "code": N, "error": { "message": "...", "stack": null }, "data": null }`. Do not expect a flat `{ "error": "..." }` response.
 - **`dni` field** is a domain term (Peruvian national ID), not a localization problem. Keep it.
 - **Self-invocation of `@Transactional`** is forbidden. `UserCreationSupport` is the transactional unit; the three create services call into it (not `@Transactional` themselves for the create method). Don't add `@Transactional` to `UserClientService.create` etc.
 - **Photo upload order**: `persist` + `flush` first (to get the generated `id`), then upload to S3, then set `photoUrl`/`photoKeyName` and `flush` again. S3 key includes the user id.
-- **Staff `id_staff` is app-assigned** (`findMaxIdStaff() + 1`). Race-prone under concurrent staff creation, but JPA can't put `@GeneratedValue` inside `@IdClass`. Document if touched.
-- **OWNER registration does NOT create an `event_owner` row.** The spec (PLAN §6) does not ask for it and provides no `ruc`. The events module will own that concern later.
-- **Hardcoded STS creds in `application.properties`** are temporary. Never commit new ones without telling the user they expire. Never log them.
+- **Staff `id_staff` is auto-generated** — `StaffEntity.idStaff` has `@GeneratedValue(strategy = IDENTITY)` inside the `@IdClass`. `UserStaffServiceImpl` does not assign it manually. `StaffRepository.findMaxIdStaff()` is dead code.
+- **OWNER registration creates an `event_owner` row.** `UserOwnerServiceImpl.create` persists an `EventOwnerEntity(ruc, enabled=true, userId)` after `UserCreationSupport.create`. `UserOwnerServiceImpl.changeToOwner` also creates the row when promoting an existing user. `UserAdminServiceImpl.deleteAccount` deletes the row before deleting the user.
+- **Hardcoded IAM keys in `application.properties`** are long-lived (`AKIA...`). They do not expire like STS tokens, but they should still be rotated and never logged or committed elsewhere.
+- **Spanish comments remain in `users/config/UserConfig.java`** (`"USAR CUANDO PASES A LABROLE"`). This violates §3.1; replace with English comments if you edit that file.
 
 ---
 

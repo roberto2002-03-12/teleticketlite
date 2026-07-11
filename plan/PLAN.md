@@ -32,75 +32,83 @@ NOTE: If Quarkus with a specific AWS SDK already provides these functions, omit 
 - Validation of authorization with the assigned role via the payload of the token provided in the header.
 
 ### events
-#### Purpose:
-Este modulo se encarga de la gestión de las tablas "event", "event_category" y "event_images".
+#### Purpose
+This module is responsible for managing the `"event"`, `"event_category"`, and `"event_images"` tables.
 
-La tabla "event" registra eventos en los cuales el usuario con rol "CLIENT" puede inscribirse al evento a través de la tabla "qr_ticket" (se desarrollara más adelante, no en este modulo). El usuario que crea el evento (rol: "OWNER" y "ADMIN") puede agregar varias imagenes en el formulario, con un máximo de 8 imagenes, estas imagenes tienen un orden que se establece al subir el archivo, el orden se guarda mediante la columna "index", si se llega 8 imagenes en el formulario, el primero tendrá el index 0 hasta llegar a 7 según el orden de las imagenes llegadas. El usuario también puede asignar categoria al evento, siendo solamente una.
+The `"event"` table records events for which users with the `"CLIENT"` role can register via the `"qr_ticket"` table (which will be developed later, not in this module). The user who creates the event (roles: `"OWNER"` and `"ADMIN"`) can upload multiple images in the form, up to a maximum of 8 images. These images follow a specific sequence established during file upload, which is stored using the `"index"` column. If the form reaches the 8-image limit, the first image will have index 0, up to index 7, following the sequence in which the images were received. The user can also assign a category to the event, with a limit of exactly one category per event.
 
-La creación de un evento se puede definir lo siguiente:
-- title
-- description
-- max_people
-- address
-- available
-- finished
-- start_date
-- finish_date
-- owner_id (se obtiene el id del usuario que realizó la petición, detalles más adelante)
-- category_id (id de "event_category" existente)
+An event creation request can define the following attributes:
+*   `title`
+*   `description`
+*   `max_people`
+*   `address`
+*   `available`
+*   `finished`
+*   `start_date`
+*   `finish_date`
+*   `owner_id` (retrieved from the ID of the user making the request, details below)
+*   `category_id` (ID of an existing `"event_category"`)
 
-Para poder ver los atributos de las tablas del modulo, revisa `plan/ARCHITECTURE.MD`
+To inspect the table attributes for this module, review `plan/ARCHITECTURE.MD`.
 
-¿Cómo obtener el "owner_id"?
-Mediante el token obtenido obtienes el email del usuario que esta logueado, con ese email obtienes el id del usuario, luego de obtener el id de usuario debes crear un método para obtener el id_event_onwer de la tabla "event_owner" buscando mediante "user_id" con el id de usuario obtenido mediante el email del token.
-Ya existe una función llamada "currentEmail" en `src\main\java\com\app\teleticket\auth\service\impl\AuthServiceImpl.java` que te da el email mediante el token.
+#### How to retrieve the "owner_id"?
+Extract the email of the logged-in user from the provided token. Use this email to fetch the user ID. Once you have the user ID, you must implement a method to retrieve the `id_event_owner` from the `"event_owner"` table by querying the `"user_id"` with the ID obtained via the token email.
 
-#### Use of cases
-rol: CLIENT (token requerido)
-- Los usuarios con el rol "CLIENT" solo pueden leer eventos que esten activos
-- Seleccionar un evento
+There is already an existing function named `"currentEmail"` in `src/main/java/com/app/teleticket/auth/service/impl/AuthServiceImpl.java` that extracts the email from the token.
 
-rol: OWNER (token requerido)
-- crear evento
-- editar evento
-- cancelar evento
-- ver los eventos relacionados a ellos sin importar el estado.
+#### Use Cases
 
-rol: STAFF
-- ver los eventos relacionados a ellos sin importar el estado.
-- editar solo descripción y categoria
+role: CLIENT (token required)
+*   Users with the `"CLIENT"` role can only read active events.
+*   Select an event.
 
-rol: ADMIN
-- todas los permisos del modulo.
-- crear categoria
+role: OWNER (token required)
+*   Create event.
+*   Edit event.
+*   Cancel event.
+*   View all events associated with them, regardless of their status.
 
-#### Notas
-1. Los usuarios con el rol "CLIENT" pueden realizar busqueda de eventos con los siguientes filtros:
-    - title
-    - start_date
-    - finish_date
-    - category_id
-2. El filtro "available" siempre debe estar en true cuando el "CLIENT" realiza petición de listado.
-3. Los eventos pueden incluir varias imagenes de tipo jpg, jpeg y png, solo de esos 3 tipo.
-4. Debe tener paginado controlado, cada página lista 12 eventos, existe 25 eventos entonces hay 3 páginas, el usuario no puede ir a la página 4 porque no existe suficientes eventos.
-### Consideraciones:
-- Evitar el try catch con catch sin data alguno, ejemplo:
+role: STAFF
+*   View all events associated with them, regardless of their status.
+*   Edit description and category fields only.
 
-    Incorrecot
-    ```
+role: ADMIN
+*   All permissions within this module.
+*   Create category.
+
+#### Notes
+1.  Users with the `"CLIENT"` role can search for events using the following filters:
+    *   `title`
+    *   `start_date`
+    *   `finish_date`
+    *   `category_id`
+2.  The `"available"` filter must always be set to `true` when a `"CLIENT"` requests an event listing.
+3.  Events can include multiple images, strictly restricted to `jpg`, `jpeg`, and `png` formats.
+4.  Pagination must be strictly controlled; each page lists up to 12 events. For example, if there are 25 events, there are 3 pages available. The user cannot access page 4 since there are not enough events to populate it.
+
+---
+
+#### Considerations
+*   Avoid empty catch blocks. For example:
+
+    **Incorrect:**
+    ```java
     try {
-        ... // logica de código
+        // ... code logic
     } catch (Exception e) {
-        // vacio
+        // empty
     }
     ```
-    Correcto
-    ```
+
+    **Correct:**
+    ```java
     try {
-        ... // lógica de código
+        // ... code logic
     } catch (Exception e) {
-        ... // logica de atrapar código o retorno de error controlado con formato `src\main\java\com\app\teleticket\common\dto\ApiResponse.java`
+        // ... error handling logic or controlled error response using the `src/main/java/com/app/teleticket/common/dto/ApiResponse.java` format
     }
     ```
-- No todos los formularios son de tipo formdata, algunos deben ser de tipo JSON.
-- Usar form data con formularios con imagenes
+
+*   Not all forms use Form Data; some must handle standard JSON payloads.
+*   Use Form Data exclusively for forms that include image uploads.
+*   All HTTP responses, whether successful or containing errors, must return the `src/main/java/com/app/teleticket/common/dto/ApiResponse.java` object.
