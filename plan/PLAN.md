@@ -35,7 +35,7 @@ NOTE: If Quarkus with a specific AWS SDK already provides these functions, omit 
 #### Purpose:
 Este modulo se encarga de la gestión de las tablas "event", "event_category" y "event_images".
 
-El proposito de "event" es ser la tabla en la cual se registra un evento en los cuales el usuario con rol "CLIENT" puede inscribirse al evento a través de la tabla "qr_ticket" (se desarrollara más adelante, no en este modulo). El usuario que crea el evento (rol: "OWNER" y "ADMIN") pueden agregar varias imagenes hasta 8, estas imagenes tienen un orden, si se llega 8 imagenes en el formulario, el primero tendrá el index 0 hasta llegar a 7 según el orden de las imagenes llegadas. El usuario también puede asignar categoria al evento, siendo solamente una.
+La tabla "event" registra eventos en los cuales el usuario con rol "CLIENT" puede inscribirse al evento a través de la tabla "qr_ticket" (se desarrollara más adelante, no en este modulo). El usuario que crea el evento (rol: "OWNER" y "ADMIN") puede agregar varias imagenes en el formulario, con un máximo de 8 imagenes, estas imagenes tienen un orden que se establece al subir el archivo, el orden se guarda mediante la columna "index", si se llega 8 imagenes en el formulario, el primero tendrá el index 0 hasta llegar a 7 según el orden de las imagenes llegadas. El usuario también puede asignar categoria al evento, siendo solamente una.
 
 La creación de un evento se puede definir lo siguiente:
 - title
@@ -46,31 +46,61 @@ La creación de un evento se puede definir lo siguiente:
 - finished
 - start_date
 - finish_date
-- owner_id (se obtiene el id del usuario que realiza la petición, detalles más adelante)
+- owner_id (se obtiene el id del usuario que realizó la petición, detalles más adelante)
 - category_id (id de "event_category" existente)
 
-Para poder ver el tipo de atributo, revisa `plan/ARCHITECTURE.MD`
+Para poder ver los atributos de las tablas del modulo, revisa `plan/ARCHITECTURE.MD`
 
 ¿Cómo obtener el "owner_id"?
 Mediante el token obtenido obtienes el email del usuario que esta logueado, con ese email obtienes el id del usuario, luego de obtener el id de usuario debes crear un método para obtener el id_event_onwer de la tabla "event_owner" buscando mediante "user_id" con el id de usuario obtenido mediante el email del token.
+Ya existe una función llamada "currentEmail" en `src\main\java\com\app\teleticket\auth\service\impl\AuthServiceImpl.java` que te da el email mediante el token.
 
 #### Use of cases
-- crear evento (SOLO)
+rol: CLIENT (token requerido)
+- Los usuarios con el rol "CLIENT" solo pueden leer eventos que esten activos
+- Seleccionar un evento
 
-Los usuarios con el rol "CLIENT" solo pueden leer eventos que esten activos, los de rol "OWNER" y "STAFF" solo sus eventos propios sin importar el estado.
+rol: OWNER (token requerido)
+- crear evento
+- editar evento
+- cancelar evento
+- ver los eventos relacionados a ellos sin importar el estado.
 
-Los usuarios con el rol "CLIENT" pueden realizar busqueda de eventos con los siguientes filtros:
-- title
-- start_date
-- finish_date
-- category_id
-El filtro "available" siempre debe estar en true cuando el "CLIENT" realiza petición de listado.
+rol: STAFF
+- ver los eventos relacionados a ellos sin importar el estado.
+- editar solo descripción y categoria
 
-Dentro de este modulo se trabajan 3 tablas, que son:
-- event_category
-- event_images
-- event
+rol: ADMIN
+- todas los permisos del modulo.
+- crear categoria
 
-Los eventos pueden incluir varias imagenes de tipo jpg, jpeg y png, solo de esos 3 tipo.
+#### Notas
+1. Los usuarios con el rol "CLIENT" pueden realizar busqueda de eventos con los siguientes filtros:
+    - title
+    - start_date
+    - finish_date
+    - category_id
+2. El filtro "available" siempre debe estar en true cuando el "CLIENT" realiza petición de listado.
+3. Los eventos pueden incluir varias imagenes de tipo jpg, jpeg y png, solo de esos 3 tipo.
+4. Debe tener paginado controlado, cada página lista 12 eventos, existe 25 eventos entonces hay 3 páginas, el usuario no puede ir a la página 4 porque no existe suficientes eventos.
+### Consideraciones:
+- Evitar el try catch con catch sin data alguno, ejemplo:
 
-Debe haber operaciones CRUD
+    Incorrecot
+    ```
+    try {
+        ... // logica de código
+    } catch (Exception e) {
+        // vacio
+    }
+    ```
+    Correcto
+    ```
+    try {
+        ... // lógica de código
+    } catch (Exception e) {
+        ... // logica de atrapar código o retorno de error controlado con formato `src\main\java\com\app\teleticket\common\dto\ApiResponse.java`
+    }
+    ```
+- No todos los formularios son de tipo formdata, algunos deben ser de tipo JSON.
+- Usar form data con formularios con imagenes
