@@ -24,6 +24,7 @@ import jakarta.transaction.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @ApplicationScoped
@@ -120,6 +121,62 @@ public class EventOwnerServiceImpl implements EventOwnerService {
                 .toList();
     }
 
+    @Override
+    @Transactional
+    public EventResponseDTO replaceImages(String currentEmail, Integer eventId, List<EventImageInput> photos) {
+        Integer ownerId = resolveEventOwnerId(currentEmail);
+        EventEntity event = mustFindOwned(eventId, ownerId);
+        if (Objects.isNull(photos) || photos.isEmpty()) {
+            throw new EventException(404, "No photos found");
+        }
+
+        if (photos.size() > MAX_IMAGES) {
+            throw new EventException(400, "An event can have at most " + MAX_IMAGES + " images");
+        }
+
+        List<EventImageEntity> newRows = uploadNewImages(eventId, photos);
+        List<String> newKeys = newRows.stream().map(EventImageEntity::getKeyName).toList();
+
+        try {
+            List<EventImageEntity> oldImages = eventImageRepository.findByEventId(eventId);
+            eventImageRepository.deleteByEventId(eventId);
+
+            for (EventImageEntity row : newRows) {
+                eventImageRepository.persist(row);
+                eventImageRepository.flush();
+            }
+
+            imageStorage.deleteAll(oldImages.stream().map(EventImageEntity::getKeyName).toList());
+            return mapper.toResponse(event, newRows);
+        } catch (RuntimeException e) {
+            imageStorage.deleteAll(newKeys);
+            throw e;
+        }
+    }
+
+    @Override
+    @Transactional
+    public EventResponseDTO deleteImages(String currentEmail, Integer eventId, List<Integer> imagesId) {
+        Integer ownerId = resolveEventOwnerId(currentEmail);
+        EventEntity event = mustFindOwned(eventId, ownerId);
+
+        if (imagesId == null || imagesId.isEmpty()) {
+            throw new EventException(400, "imagesId list is required");
+        }
+
+        List<EventImageEntity> toDelete = eventImageRepository.findByEventIdAndIdIn(eventId, imagesId);
+        if (toDelete.size() != imagesId.size()) {
+            throw new EventException(404, "One or more images not found for this event");
+        }
+
+        List<String> keys = toDelete.stream().map(EventImageEntity::getKeyName).toList();
+        eventImageRepository.deleteByEventIdAndIdIn(eventId, imagesId);
+        imageStorage.deleteAll(keys);
+
+        List<EventImageEntity> remaining = eventImageRepository.findByEventId(eventId);
+        return mapper.toResponse(event, remaining);
+    }
+
     private EventEntity mustFindOwned(Integer eventId, Integer ownerId) {
         EventEntity event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventException(404, "Event not found"));
@@ -168,6 +225,32 @@ public class EventOwnerServiceImpl implements EventOwnerService {
         } catch (RuntimeException e) {
             imageStorage.deleteAll(uploadedKeys);
             throw e;
+        }
+        return rows;
+    }
+
+    private List<EventImageEntity> uploadNewImages(Integer eventId, List<EventImageInput> photos) {
+        if (photos == null || photos.isEmpty()) {
+            return List.of();
+        }
+        List<EventImageEntity> rows = new ArrayList<>();
+        for (int i = 0; i < photos.size(); i++) {
+            EventImageInput photo = photos.get(i);
+            if (photo.bytes() == null || photo.bytes().length == 0) {
+                throw new EventException(400, "Empty image at index " + i);
+            }
+            if (photo.contentType() == null || !ALLOWED_CONTENT_TYPES.contains(photo.contentType())) {
+                throw new EventException(415, "Only jpg, jpeg and png images are allowed");
+            }
+            String url = imageStorage.upload(eventId, i, photo.contentType(), photo.bytes());
+            String key = extractKey(url);
+
+            EventImageEntity row = new EventImageEntity();
+            row.setUrl(url);
+            row.setKeyName(key);
+            row.setIndex(i);
+            row.setEventId(eventId);
+            rows.add(row);
         }
         return rows;
     }

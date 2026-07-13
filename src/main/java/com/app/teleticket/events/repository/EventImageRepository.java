@@ -13,7 +13,15 @@ public class EventImageRepository implements PanacheRepository<EventImageEntity>
         return find("eventId", eventId).list();
     }
 
+    public List<EventImageEntity> findByEventIdAndIdIn(Integer eventId, List<Integer> ids) {
+        return find("eventId = ?1 and id in ?2", eventId, ids).list();
+    }
+
     public long deleteByEventId(Integer eventId) {
         return delete("eventId", eventId);
+    }
+
+    public long deleteByEventIdAndIdIn(Integer eventId, List<Integer> ids) {
+        return delete("eventId = ?1 and id in ?2", eventId, ids);
     }
 }

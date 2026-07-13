@@ -5,6 +5,8 @@ import com.app.teleticket.common.dto.ApiResponse;
 import com.app.teleticket.events.dto.EventCreateDTO;
 import com.app.teleticket.events.dto.EventCreateForm;
 import com.app.teleticket.events.dto.EventImageInput;
+import com.app.teleticket.events.dto.EventImageReplaceForm;
+import com.app.teleticket.events.dto.EventImagesDeleteRequest;
 import com.app.teleticket.events.dto.PageResponse;
 import com.app.teleticket.events.dto.EventResponseDTO;
 import com.app.teleticket.events.dto.EventStaffUpdateDTO;
@@ -17,6 +19,7 @@ import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
@@ -124,6 +127,26 @@ public class EventResource {
     @Operation(summary = "Select an active event by id")
     public ApiResponse<EventResponseDTO> getById(@PathParam("id") Integer id) {
         return ApiResponse.ok(clientService.getActiveById(id));
+    }
+
+    @PUT
+    @Path("/{id}/images")
+    @RolesAllowed({"OWNER", "ADMIN"})
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Operation(summary = "Replace all images of an owned event (up to 8 jpg/jpeg/png)")
+    public ApiResponse<EventResponseDTO> replaceImages(@PathParam("id") Integer id,
+                                                       @BeanParam @Valid EventImageReplaceForm form) {
+        return ApiResponse.ok(ownerService.replaceImages(auth.currentEmail(), id, toImageInputs(form.getPhotos())));
+    }
+
+    @DELETE
+    @Path("/{id}/images")
+    @RolesAllowed({"OWNER", "ADMIN"})
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(summary = "Delete selected images of an owned event")
+    public ApiResponse<EventResponseDTO> deleteImages(@PathParam("id") Integer id,
+                                                      @Valid EventImagesDeleteRequest request) {
+        return ApiResponse.ok(ownerService.deleteImages(auth.currentEmail(), id, request.getImagesId()));
     }
 
     private EventCreateDTO toCreateDTO(EventCreateForm form) {
