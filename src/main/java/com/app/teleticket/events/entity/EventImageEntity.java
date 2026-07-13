@@ -13,10 +13,10 @@ public class EventImageEntity {
     @Column(nullable = false, length = 255)
     private String url;
 
-    @Column(name = "key", nullable = false, length = 105)
+    @Column(name = "\"key\"", nullable = false, length = 105)
     private String keyName;
 
-    @Column(name = "index", nullable = false)
+    @Column(name = "\"index\"", nullable = false)
     private Integer index;
 
     @Column(name = "event_id", nullable = false)
