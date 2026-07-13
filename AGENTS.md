@@ -238,12 +238,14 @@ Implements `event`, `event_category`, `event_images` tables (see `plan/ARCHITECT
 | `dto/EventImageResponseDTO.java` | record `{ id, url, index }`. |
 | `dto/EventCategoryResponseDTO.java` | record `{ id, name, description }`. |
 | `dto/PageResponse.java` | generic `record<T>(List<T> items, long total, int page, int pageSize, int totalPages)` used for paginated CLIENT search results. |
+| `dto/EventImageReplaceForm.java` | `multipart/form-data` form for `PUT /events/{id}/images`. Carries `List<FileUpload> photos` (up to 8, enforced in service). |
+| `dto/EventImagesDeleteRequest.java` | JSON body for `DELETE /events/{id}/images`. Carries `List<Integer> imagesId`. |
 
 ### 6.3 Repository layer
 
 - `repository/EventRepository.java` — `searchActive`/`countActive` (CLIENT search with filters: `title` LIKE, `startDate>=`, `finishDate<=`, `categoryId=`, always `available = true`); uses **`Map<String, Object>`** for parameterized queries (NOT the deprecated `io.quarkus.panache.common.Parameters` — that overload is deprecated since Quarkus 3.34); `findByOwnerId`; `findEventsForStaffUser(userId)` (cross-module JPQL through `StaffEntity` from the `users` module — works because both entities are in the same persistence unit); declares an overload `findById(Integer)` returning `Optional` so callers can use Integer path params — `PanacheRepository<Entity>` defaults the id type to `Long`, so you must add a custom `findById(Integer)` overload whenever the entity id is `int`/`Integer`.
 - `repository/EventCategoryRepository.java` — `findByName` (uniqueness check on create); also declares `findById(Integer)` returning `Optional` (same Long-vs-Integer reason as above).
-- `repository/EventImageRepository.java` — `findByEventId`, `deleteByEventId`.
+- `repository/EventImageRepository.java` — `findByEventId`, `findByEventIdAndIdIn`, `deleteByEventId`, `deleteByEventIdAndIdIn`.
 
 ### 6.4 Service layer
 
@@ -251,7 +253,7 @@ All services are interfaces in `service/` with impl in `service/impl/`, split by
 
 | Service | Responsibility | Endpoint callers |
 |---|---|---|
-| `EventOwnerService` | create (with images), update owned, cancel owned, list own | `OWNER`, `OWNER`+`ADMIN` |
+| `EventOwnerService` | create (with images), update owned, cancel owned, list own, replace all images, delete selected images | `OWNER`, `OWNER`+`ADMIN` |
 | `EventStaffService` | list affiliated events, update description+category only on affiliated events | `STAFF` |
 | `EventClientService` | paginated search of active events (12/page, page out of range → 400), select one active event by id | `CLIENT` |
 | `EventCategoryService` | create category (admin), list all categories | `ADMIN` create; any auth role list |
@@ -261,7 +263,7 @@ All services are interfaces in `service/` with impl in `service/impl/`, split by
 
 | File | Path prefix | Endpoints |
 |---|---|---|
-| `controller/EventResource.java` | `/events` | `POST /events` (OWNER, ADMIN, multipart); `PUT /events/{id}` (OWNER, ADMIN, JSON); `PUT /events/{id}/cancel` (OWNER, ADMIN); `GET /events/me` (OWNER, ADMIN); `GET /events/me/staff` (STAFF); `PUT /events/{id}/staff` (STAFF, JSON); `GET /events` (CLIENT, query params + pagination); `GET /events/{id}` (CLIENT) |
+| `controller/EventResource.java` | `/events` | `POST /events` (OWNER, ADMIN, multipart); `PUT /events/{id}` (OWNER, ADMIN, JSON); `PUT /events/{id}/cancel` (OWNER, ADMIN); `GET /events/me` (OWNER, ADMIN); `GET /events/me/staff` (STAFF); `PUT /events/{id}/staff` (STAFF, JSON); `GET /events` (CLIENT, query params + pagination); `GET /events/{id}` (CLIENT); `PUT /events/{id}/images` (OWNER, ADMIN, multipart); `DELETE /events/{id}/images` (OWNER, ADMIN, JSON) |
 | `controller/EventCategoryResource.java` | `/events/categories` | `POST /events/categories` (ADMIN, JSON); `GET /events/categories` (any auth role) |
 
 ### 6.6 Owner resolution
@@ -279,6 +281,18 @@ If the caller has no `event_owner` row → `403 "Current user is not an event ow
 2. Persist `EventEntity`, `flush()` to get the generated `id`.
 3. For each photo (in received order, index 0..N-1): validate content-type, upload to S3, persist `EventImageEntity` with `index` and `eventId`. Track uploaded S3 keys.
 4. If any photo step fails: delete already-uploaded S3 keys (best-effort), then rethrow — the `@Transactional` boundary rolls back the DB rows (event + image entities).
+
+`EventOwnerServiceImpl.replaceImages`:
+1. Validate `photos.size() ≤ 8` and that the event exists and belongs to the caller.
+2. Upload every new photo to S3 first (validates content-type and non-empty bytes). Keep the list of newly uploaded S3 keys.
+3. Inside the same `@Transactional` boundary: load all old `EventImageEntity` rows for the event, delete them from the DB, then persist the new rows and `flush()`.
+4. Delete the old S3 keys.
+5. If any RuntimeException happens during the DB work or old-key deletion, delete the newly uploaded S3 keys (best-effort) and rethrow — the transaction rolls back, restoring the old image rows.
+
+`EventOwnerServiceImpl.deleteImages`:
+1. Verify the event exists and belongs to the caller.
+2. Load the requested image rows by `eventId` and `id in imagesId`; return `404` if any ID is missing.
+3. Inside `@Transactional`: delete the selected rows from the DB, then delete their S3 keys. If the S3 call fails, the transaction rolls back and the rows remain.
 
 ### 6.8 Pagination rules
 
@@ -328,6 +342,8 @@ Status codes used:
 | PUT | `/events/{id}/staff` | `STAFF` | JSON | `EventStaffService.updateStaffFields` |
 | GET | `/events` | `CLIENT` | query params + pagination | `EventClientService.search` |
 | GET | `/events/{id}` | `CLIENT` | — | `EventClientService.getActiveById` |
+| PUT | `/events/{id}/images` | `OWNER` or `ADMIN` | multipart (up to 8 photos) | `EventOwnerService.replaceImages` |
+| DELETE | `/events/{id}/images` | `OWNER` or `ADMIN` | JSON `{ imagesId }` | `EventOwnerService.deleteImages` |
 | POST | `/events/categories` | `ADMIN` | JSON | `EventCategoryService.create` |
 | GET | `/events/categories` | any authenticated role | — | `EventCategoryService.list` |
 
