@@ -36,12 +36,13 @@ This file is the canonical context for any AI coding agent (Cursor, opencode, Co
         ├── auth/              ← auth module
         ├── common/            ← shared DTOs and exception mappers (cross-cutting)
         ├── events/            ← events module
+        ├── qr/                ← qr module
         └── users/             ← users module
 ```
 
 > ⚠️ `plan/ARCHITECTURE.MD` still shows the original Spanish-named scaffolding (`Usuario*`) and an early package layout. It is out of date — use this file and the actual `src/main/java` tree as the authoritative source of structure.
 
-Modules planned but **not yet implemented**: `qr`, `assistance`. Do not create stubs for them unless asked.
+Modules planned but **not yet implemented**: `assistance`. Do not create stubs for them unless asked.
 
 ---
 
@@ -346,10 +347,95 @@ Status codes used:
 | DELETE | `/events/{id}/images` | `OWNER` or `ADMIN` | JSON `{ imagesId }` | `EventOwnerService.deleteImages` |
 | POST | `/events/categories` | `ADMIN` | JSON | `EventCategoryService.create` |
 | GET | `/events/categories` | any authenticated role | — | `EventCategoryService.list` |
+| POST | `/qr/events/{eventId}/tickets` | `CLIENT` | — | `QrRegisterService.register` |
+| POST | `/qr/tickets/validate` | public | multipart (single `qr` file) | `QrValidationService.validate` |
+| GET | `/qr/events/{eventId}/assistants` | `OWNER` | — | `EventAssistantService.listAssistants` |
 
 ---
 
-## 8. Configuration (`src/main/resources/application.properties`)
+## 7b. The `qr` module
+
+Implements `qr_ticket` and `event_assistants` tables (see `plan/ARCHITECTURE.MD`). A CLIENT registers for an active event; the service generates a QR code image, uploads it to S3, creates the `qr_ticket` row, and records the registration in `event_assistants`. A public endpoint validates a submitted QR image and marks the ticket as applied. An OWNER lists the assistants of an owned event.
+
+> ⚠️ The `qr_ticket.alredy_applied` column is misspelled in the DDL (`alredy_applied`, not `already_applied`). The entity maps it with `@Column(name = "alredy_applied")` and the Java field is `alreadyApplied`.
+
+### 7b.1 Entity layer
+
+| File | Notes |
+|---|---|
+| `entity/QrTicketEntity.java` | `@Entity @Table(name = "qr_ticket")`. `id` is `int IDENTITY`. `qrUrl` → `qr_url`, `qrKey` → `qr_key`, `alreadyApplied` → column `alredy_applied` (typo kept), `userId` → `user_id`, `eventId` → `event_id`. Plain entity, private fields + getters/setters, no `PanacheEntity`. |
+| `entity/EventAssistantEntity.java` | `@Entity @Table(name = "event_assistants")`. `id` is `int IDENTITY`. `registerDate` → `register_date` (nullable in DDL but always set on registration), `eventId` → `event_id`, `userId` → `user_id`. Same plain-entity style. |
+
+### 7b.2 DTOs
+
+| File | Purpose |
+|---|---|
+| `dto/QrTicketResponseDTO.java` | record `{ id, userId, eventId, qrUrl, alreadyApplied }` returned by the register endpoint. |
+| `dto/QrValidationResponseDTO.java` | record `{ valid: boolean }` returned by the validate endpoint. |
+| `dto/EventAssistantResponseDTO.java` | record `{ id, userId, eventId, registerDate }` returned by the assistants endpoint. |
+| `dto/QrPayload.java` | internal record `{ userId, eventId }` decoded from a QR image. |
+| `dto/QrUploadResult.java` | internal record `{ url, key }` returned by `QrStorageService`. |
+| `dto/QrScanForm.java` | `multipart/form-data` form for `POST /qr/tickets/validate` with a single `FileUpload qr` (`@RestForm`). |
+
+### 7b.3 Repository layer
+
+- `repository/QrTicketRepository.java` — `PanacheRepository<QrTicketEntity>`. Methods: `findById(Integer)`, `findByUserIdAndEventId(Integer, Integer)`. Declares its own `findById(Integer)` overload (entity id is `int`).
+- `repository/EventAssistantRepository.java` — `PanacheRepository<EventAssistantEntity>`. Methods: `findById(Integer)`, `findByUserIdAndEventId`, `existsByUserIdAndEventId`, `countByEventId`, `findByEventId`. All parameterized.
+
+### 7b.4 Service layer
+
+All services are interfaces in `service/` with impl in `service/impl/`:
+
+| Service | Responsibility | Endpoint callers |
+|---|---|---|
+| `QrRegisterService` | register the current CLIENT for an event: validate event active + not finished + not already registered + not full, generate QR, upload to S3, persist `event_assistants` + `qr_ticket`, compensate S3 on DB failure | `CLIENT` |
+| `QrValidationService` | decode a submitted QR image, find the `qr_ticket` by `(userId, eventId)`, return `false` if missing/already applied, else set `alreadyApplied = true` and return `true` | public |
+| `EventAssistantService` | list `event_assistants` for an event owned by the current user (owner resolution like `events` §6.6) | `OWNER` |
+| `QrCodeService` | ZXing encode (`generate`) / decode (`decode`) of QR images. Payload is JSON `{"userId":N,"eventId":M}`. `generate` returns PNG bytes; `decode` returns `QrPayload`. Uses `com.google.zxing:core` + `:javase` (added to `pom.xml`). |
+| `QrStorageService` | S3 wrapper for QR images. Key prefix: `qr-codes/{userId}/{eventId}-{uuid}.png`. `upload` returns `QrUploadResult(url, key)`; `delete` for compensation. Bucket/region from the same `s3.bucket-name` / `quarkus.s3.aws.region` properties as the events module. |
+
+### 7b.5 Resource layer
+
+| File | Path prefix | Endpoints |
+|---|---|---|
+| `controller/QrResource.java` | `/qr` | `POST /qr/events/{eventId}/tickets` (CLIENT); `POST /qr/tickets/validate` (public, multipart); `GET /qr/events/{eventId}/assistants` (OWNER) |
+
+The controller converts the `FileUpload` from `QrScanForm` to `byte[]` + `contentType` before calling `QrValidationService`; `FileUpload` never reaches the service layer (matches §3.5).
+
+### 7b.6 Register compensation flow
+
+`QrRegisterServiceImpl.register`:
+1. Resolve current user by email; resolve event by id.
+2. Validate: `available = true`, not `finished`, not already registered (`EventAssistantRepository.existsByUserIdAndEventId`), not full (`countByEventId >= maxPeople`).
+3. Generate QR PNG bytes locally (`QrCodeService.generate`).
+4. Upload the PNG to S3 (`QrStorageService.upload`).
+5. Inside the same `@Transactional` boundary: persist `EventAssistantEntity` (with `registerDate = now`), `flush()`, then persist `QrTicketEntity` (`alreadyApplied = false`), `flush()`.
+6. **On any RuntimeException** in step 5: catch, `qrStorageService.delete(uploaded.key)`, rethrow. The DB transaction rolls back and the S3 orphan is removed.
+
+### 7b.7 Validation flow
+
+`QrValidationServiceImpl.validate`:
+1. `@Transactional`. Decode the incoming image via `QrCodeService.decode` → `QrPayload(userId, eventId)`.
+2. Find `QrTicketEntity` by `(userId, eventId)`. If missing → `valid = false`.
+3. If `alreadyApplied = true` → `valid = false`.
+4. Else set `alreadyApplied = true`, return `valid = true`. Any `QrException` from decode (bad/empty/undecodable image) → `valid = false`; no 4xx is surfaced to the caller, the endpoint always returns a boolean.
+
+### 7b.8 Exception layer
+
+`exception/QrException.java` (status + message) + `exception/QrExceptionMapper.java` → `ApiResponse` envelope. Status codes used:
+
+| Code | Meaning |
+|---|---|
+| 400 | event not available / already finished; invalid QR image (internal, swallowed by validate) |
+| 403 | non-owner listing assistants of an event they don't own; caller has no `event_owner` row |
+| 404 | event not found |
+| 409 | user already registered for the event; event is full |
+| 500 | QR code generation failure |
+| 502 | S3 SDK failure |
+
+### 7b.9 Dependencies added
+
+- `com.google.zxing:core:3.5.3` and `com.google.zxing:javase:3.5.3` — QR code encode/decode. Not deprecated. Required by `QrCodeServiceImpl`; no QR extension exists in the project.
 
 Read these before touching anything that talks to AWS or Cognito.
 
@@ -456,7 +542,7 @@ The ID token is what must be sent as `Authorization: Bearer {{idToken}}` for `@R
 | `auth` | done (login + identity) | add refresh-token flow when needed |
 | `users` | done | photo upload of arbitrary size, pagination, more roles |
 | `events` | done | owner resolution + image upload + compensation; category management; STAFF description+category edit; CLIENT search + pagination |
-| `qr` | not started | — |
+| `qr` | done | register + QR generation (ZXing) + S3 upload + compensation; public validation; OWNER assistants list |
 | `assistance` | not started | — |
 
 When adding a new module, follow §3 strictly: package layout, English names, interface+impl for every service, no Spanish identifiers, no new ad-hoc globals.

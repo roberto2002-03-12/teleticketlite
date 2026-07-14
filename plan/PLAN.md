@@ -112,3 +112,32 @@ role: ADMIN
 *   Not all forms use Form Data; some must handle standard JSON payloads.
 *   Use Form Data exclusively for forms that include image uploads.
 *   All HTTP responses, whether successful or containing errors, must return the `src/main/java/com/app/teleticket/common/dto/ApiResponse.java` object.
+
+### qr
+#### purpose
+To validate that a "CLIENT" user has registered for a specific event ("x" event), a QR code image is required for verification. This QR code image must store two pieces of information: the user's ID and the event's ID. 
+
+The user sends the QR code image to an unauthenticated endpoint (no token required), and the system returns a boolean indicating whether the QR code is valid or not. Therefore, this endpoint must perform the validation of the incoming QR.
+
+**How is validation determined?** 
+Upon scanning, the system extracts the two IDs from the QR code and uses them to search for the `qr_ticket` entity. Once found, it must verify that `already_applied` is `false`. If it is `true`, or if the QR ticket is not found at all, the QR is invalid. 
+
+When a QR code is sent for validation and successfully processed, the system must update `already_applied` to `true`. By default, when a `qr_ticket` is created, `already_applied` is always `false`.
+
+The `qr_ticket` entity must store:
+- `qr_url`: The URL of the QR code image.
+- `qr_key`: The unique file name stored in AWS S3.
+- the rest of columns, check `C:\Users\Roberto\Documents\projects\esan\teleticket-lite\demo\plan\ARCHITECTURE.MD`
+
+**When is a `qr_ticket` generated?**
+It is generated when a user registers for an event. Upon registration, the system must create the `qr_ticket` entity, saving the client ID (the user who registered) and the event ID. It must also generate the QR code image and upload it to AWS S3. Simultaneously, it must create an `event_assistants` entity, which records the registration date, the user ID, and the event ID.
+
+#### use cases
+You must implement the following endpoints along with their respective services:
+- **Register for an Event**: Requires token authentication; restricted only to users with the "CLIENT" role.
+- **Scan/Validate QR**: Public endpoint (does not require authentication).
+- **List Event Attendees**: Retrieves data from the `event_assistants` table. Requires authentication; restricted only to users with the "OWNER" role.
+
+#### Considerations
+- The service generates the QR code image locally and then uploads it to S3, returning the QR object entity (with DTO) with its S3 URL in the response.
+- Any new packages that you'll add must not be deprecated.
