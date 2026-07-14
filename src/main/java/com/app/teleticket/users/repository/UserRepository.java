@@ -21,6 +21,14 @@ public class UserRepository implements PanacheRepository<UserEntity> {
         return find("phoneNumber", phoneNumber).firstResultOptional();
     }
 
+    public Optional<Integer> findByEmailAndReturnOnlyUsersId(String email) {
+        return getEntityManager()
+                .createQuery("SELECT u.id FROM UserEntity u WHERE u.email = :email", Integer.class)
+                .setParameter("email", email)
+                .getResultStream()
+                .findFirst();
+    }
+
     public boolean existsByEmail(String email) {
         return count("email", email) > 0;
     }

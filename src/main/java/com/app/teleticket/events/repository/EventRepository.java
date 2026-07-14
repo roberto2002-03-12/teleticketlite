@@ -1,5 +1,6 @@
 package com.app.teleticket.events.repository;
 
+import com.app.teleticket.events.dto.EventObjForQrList;
 import com.app.teleticket.events.entity.EventEntity;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
 import io.quarkus.panache.common.Page;
@@ -25,6 +26,17 @@ public class EventRepository implements PanacheRepository<EventEntity> {
     public List<EventEntity> findEventsForStaffUser(Integer userId) {
         return find("FROM EventEntity e WHERE e.id IN " +
                 "(SELECT s.eventId FROM StaffEntity s WHERE s.userId = ?1)", userId).list();
+    }
+
+    public List<EventObjForQrList> listEventsNameAndAddress(List<Integer> eventIds) {
+        return getEntityManager()
+                .createQuery(
+                        "SELECT new com.app.teleticket.events.dto.EventObjForQrList(e.id, e.title, e.address, e.startDate, e.finishDate) " +
+                                "FROM EventEntity e WHERE e.id IN :eventIds",
+                        EventObjForQrList.class
+                )
+                .setParameter("eventIds", eventIds)
+                .getResultList();
     }
 
     public List<EventEntity> searchActive(String title,
