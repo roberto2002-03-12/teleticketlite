@@ -1,7 +1,7 @@
-package com.app.teleticket.qr.service;
+package com.app.teleticket.qr.service.impl;
 
 import com.app.teleticket.qr.dto.QrPayload;
-import com.app.teleticket.qr.dto.QrUploadResult;
+import com.app.teleticket.qr.service.QrCodeService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.zxing.BarcodeFormat;
