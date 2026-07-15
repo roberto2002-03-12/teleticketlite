@@ -235,7 +235,7 @@ Implements `event`, `event_category`, `event_images` tables (see `plan/ARCHITECT
 | `dto/EventUpdateDTO.java` | JSON body for `PUT /events/{id}` (OWNER/ADMIN, full event field update). |
 | `dto/EventStaffUpdateDTO.java` | JSON body for `PUT /events/{id}/staff` (STAFF — only `description` + `categoryId`). |
 | `dto/EventCategoryCreateDTO.java` | JSON body for `POST /events/categories` (ADMIN). |
-| `dto/EventResponseDTO.java` | record with all event fields + embedded `List<EventImageResponseDTO> images`. |
+| `dto/EventResponseDTO.java` | record with all event fields + `ownerFullName` + `categoryName` + embedded `List<EventImageResponseDTO> images`. CLIENT search/get resolve owner name through `event_owner` → `user`, category name through `event_category`. |
 | `dto/EventImageResponseDTO.java` | record `{ id, url, index }`. |
 | `dto/EventCategoryResponseDTO.java` | record `{ id, name, description }`. |
 | `dto/PageResponse.java` | generic `record<T>(List<T> items, long total, int page, int pageSize, int totalPages)` used for paginated CLIENT search results. |
