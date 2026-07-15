@@ -156,9 +156,15 @@ public class EventOwnerServiceImpl implements EventOwnerService {
 
     @Override
     @Transactional
-    public EventResponseDTO deleteImages(String currentEmail, Integer eventId, List<Integer> imagesId) {
-        Integer ownerId = resolveEventOwnerId(currentEmail);
-        EventEntity event = mustFindOwned(eventId, ownerId);
+    public EventResponseDTO deleteImages(String currentEmail, Integer eventId, List<Integer> imagesId, boolean isAdmin) {
+        EventEntity event = null;
+
+        if (!isAdmin) {
+            Integer ownerId = resolveEventOwnerId(currentEmail);
+            event = mustFindOwned(eventId, ownerId);
+        } else {
+            event = eventRepository.findById(eventId).orElseThrow(() -> new EventException(404, "Event not found"));
+        }
 
         if (imagesId == null || imagesId.isEmpty()) {
             throw new EventException(400, "imagesId list is required");

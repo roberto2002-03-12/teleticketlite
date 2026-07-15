@@ -17,6 +17,8 @@ import com.app.teleticket.events.service.EventStaffService;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
+import jakarta.ws.rs.core.SecurityContext;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.BeanParam;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
@@ -145,8 +147,10 @@ public class EventResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Operation(summary = "Delete selected images of an owned event")
     public ApiResponse<EventResponseDTO> deleteImages(@PathParam("id") Integer id,
-                                                      @Valid EventImagesDeleteRequest request) {
-        return ApiResponse.ok(ownerService.deleteImages(auth.currentEmail(), id, request.getImagesId()));
+                                                      @Valid EventImagesDeleteRequest request,
+                                                      @Context SecurityContext securityContext) {
+        boolean isUserAdmin = securityContext.isUserInRole("ADMIN");
+        return ApiResponse.ok(ownerService.deleteImages(auth.currentEmail(), id, request.getImagesId(), isUserAdmin));
     }
 
     private EventCreateDTO toCreateDTO(EventCreateForm form) {

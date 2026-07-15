@@ -14,7 +14,8 @@ import java.util.List;
 @ApplicationScoped
 public class EventMapper {
 
-    public EventResponseDTO toResponse(EventEntity entity, List<EventImageEntity> images) {
+    public EventResponseDTO toResponse(EventEntity entity, List<EventImageEntity> images,
+                                       String ownerFullName, String categoryName) {
         List<EventImageResponseDTO> imageDtos = images.stream()
                 .map(img -> new EventImageResponseDTO(img.getId(), img.getUrl(), img.getIndex()))
                 .toList();
@@ -30,12 +31,18 @@ public class EventMapper {
                 entity.getFinishDate(),
                 entity.getOwnerId(),
                 entity.getCategoryId(),
+                ownerFullName,
+                categoryName,
                 imageDtos
         );
     }
 
+    public EventResponseDTO toResponse(EventEntity entity, List<EventImageEntity> images) {
+        return toResponse(entity, images, null, null);
+    }
+
     public EventResponseDTO toResponse(EventEntity entity) {
-        return toResponse(entity, List.of());
+        return toResponse(entity, List.of(), null, null);
     }
 
     public EventCategoryResponseDTO toResponse(EventCategoryEntity entity) {

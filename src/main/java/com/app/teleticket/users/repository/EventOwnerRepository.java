@@ -9,6 +9,10 @@ import java.util.Optional;
 @ApplicationScoped
 public class EventOwnerRepository implements PanacheRepository<EventOwnerEntity> {
 
+    public Optional<EventOwnerEntity> findById(Integer id) {
+        return find("idEventOwner", id).firstResultOptional();
+    }
+
     public Optional<EventOwnerEntity> findByUserId(Integer userId) {
         return find("userId", userId).firstResultOptional();
     }

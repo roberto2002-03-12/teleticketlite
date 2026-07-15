@@ -19,5 +19,5 @@ public interface EventOwnerService {
 
     EventResponseDTO replaceImages(String currentEmail, Integer eventId, List<EventImageInput> photos);
 
-    EventResponseDTO deleteImages(String currentEmail, Integer eventId, List<Integer> imagesId);
+    EventResponseDTO deleteImages(String currentEmail, Integer eventId, List<Integer> imagesId, boolean isAdmin);
 }

@@ -15,6 +15,8 @@ public record EventResponseDTO(
         LocalDateTime finishDate,
         Integer ownerId,
         Integer categoryId,
+        String ownerFullName,
+        String categoryName,
         List<EventImageResponseDTO> images
 ) {
 }
