@@ -1,6 +1,6 @@
 {
   "info": {
-    "_postman_id": "d57227b3-3899-44e1-b8de-2de4a53eb473",
+    "_postman_id": "d1792e4b-0d4f-4519-b987-b67b21d718cb",
     "name": "Teleticket Lite",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "31856244"
@@ -15,14 +15,14 @@
             {
               "listen": "test",
               "script": {
-              "exec": [
-                "var json = pm.response.json();",
-                "if (json && json?.data) {",
-                "  pm.collectionVariables.set('idToken', json.data.idToken);",
-                "  pm.collectionVariables.set('accessToken', json.data.accessToken);",
-                "  console.log('idToken stored in collectionVariables (required for RolesAllowed because groups are in the ID token)');",
-                "}"
-              ],
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json && json?.data) {",
+                  "  pm.collectionVariables.set('idToken', json.data.idToken);",
+                  "  pm.collectionVariables.set('accessToken', json.data.accessToken);",
+                  "  console.log('idToken stored in collectionVariables (required for RolesAllowed because groups are in the ID token)');",
+                  "}"
+                ],
                 "type": "text/javascript",
                 "packages": {},
                 "requests": {}
@@ -39,7 +39,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"robertocg21dev@gmail.com\",\n  \"password\": \"contrasena@123\"\n}",
+              "raw": "{\n  \"email\": \"staff3@example.com\",\n  \"password\": \"password\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -57,7 +57,50 @@
               ]
             }
           },
-          "response": []
+          "response": [
+            {
+              "name": "Login (CLIENT / STAFF / OWNER / ADMIN)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"robertocg24dev@gmail.com\",\n  \"password\": \"password\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "auth",
+                    "login"
+                  ]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [],
+              "body": "{\r\n    \"code\": 200,\r\n    \"data\": {\r\n        \"accessToken\": \"eyJraWQiOiJNMDFZZ1JKa0x1aDA2SnRhQ29YWW0rUnpmemQ2RFNWeHVxRmszMWlJWFJ3PSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI0NDY4ZDQ1OC1kMGYxLTcwMjItOGQ0Ny1lZGQyNDM4NDhjZWUiLCJjb2duaXRvOmdyb3VwcyI6WyJDTElFTlQiXSwiaXNzIjoiaHR0cHM6Ly9jb2duaXRvLWlkcC51cy1lYXN0LTEuYW1hem9uYXdzLmNvbS91cy1lYXN0LTFfczMzaXJITWpJIiwiY2xpZW50X2lkIjoiZmZhbWQyc3UwMm9nNDUwcGwzN2ptMTdxOCIsIm9yaWdpbl9qdGkiOiIxNzc3NGVkMS00YjhiLTRmMTAtOWFmYS03ZDljY2UyNDhjNTgiLCJldmVudF9pZCI6ImQ1N2M2ZWNjLWYxNmMtNGZmYi04ZDFmLWZmZWU5OTY2YWJiOSIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiYXdzLmNvZ25pdG8uc2lnbmluLnVzZXIuYWRtaW4iLCJhdXRoX3RpbWUiOjE3ODQwMDU4NjcsImV4cCI6MTc4NDAwOTQ2NywiaWF0IjoxNzg0MDA1ODY4LCJqdGkiOiI4YWE0Y2Q2Yi1iNThlLTQxMjItYmIzZC1kNWI5ZDczNDM1Y2QiLCJ1c2VybmFtZSI6InJvYmVydG9jZzI0ZGV2QGdtYWlsLmNvbSJ9.lR4e0LVa2jXTclv0y1FjD3zFY-noXaXAYDR6wZSGrCPATvrPd9_YakEcT9nQ95L8fxO-3wIe-Wb3Qio5mGArWi-cngCjLSvfWH9PVotg7AdVr_3M-4uakfx4XMcB2xbGSKWyycC_ugCxmVnS8BObnXGKKa1ODZwFx3eo9aFg6V_I9AzIN39-giIRsiawDpnRHoOXR9EsLQZIxg3R1j4m6HlcAdxy1hkRwUKCQM_vRNm_e3WOVB3WzybO0IxVrO26loIkXdUDb-dZNNxMjbBSoTg996XqTBooHMKDWKk2vLl2P9Q8aCESucWQ9Rtr6IdDjM1TvGts8BiFoerAVypnrQ\",\r\n        \"idToken\": \"eyJraWQiOiJsMFhDZkRlQXVzVWlMU21va2JkVVRkSGd2YmxxTUt6Z0g5N0MrUmZyYW5RPSIsImFsZyI6IlJTMjU2In0.eyJzdWIiOiI0NDY4ZDQ1OC1kMGYxLTcwMjItOGQ0Ny1lZGQyNDM4NDhjZWUiLCJjb2duaXRvOmdyb3VwcyI6WyJDTElFTlQiXSwiZW1haWxfdmVyaWZpZWQiOnRydWUsImlzcyI6Imh0dHBzOi8vY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb20vdXMtZWFzdC0xX3MzM2lySE1qSSIsImNvZ25pdG86dXNlcm5hbWUiOiJyb2JlcnRvY2cyNGRldkBnbWFpbC5jb20iLCJvcmlnaW5fanRpIjoiMTc3NzRlZDEtNGI4Yi00ZjEwLTlhZmEtN2Q5Y2NlMjQ4YzU4IiwiYXVkIjoiZmZhbWQyc3UwMm9nNDUwcGwzN2ptMTdxOCIsImV2ZW50X2lkIjoiZDU3YzZlY2MtZjE2Yy00ZmZiLThkMWYtZmZlZTk5NjZhYmI5IiwidG9rZW5fdXNlIjoiaWQiLCJhdXRoX3RpbWUiOjE3ODQwMDU4NjcsInBob25lX251bWJlciI6Iis1MTkyNTM2ODIwMyIsImV4cCI6MTc4NDAwOTQ2NywiaWF0IjoxNzg0MDA1ODY4LCJqdGkiOiI3ZWM1OTk5Ny1iYzMzLTRiMDktOTcwOC0yOWQyMzg3ZmU0ZjMiLCJlbWFpbCI6InJvYmVydG9jZzI0ZGV2QGdtYWlsLmNvbSJ9.q9la6Qa8UKYHxdgjbM3W-EY7iCOo1YKkVsdAotpB46NN2_UGC9kMNDTjkWiW_mvKO32qINSoXMXEwJN9-s8UHXWwSC0rvSGcnfVleKN7a0V4uCWBJoyjGXw6Zm-V7DBL6iPdEg-1fRK4COGyVbaMWEOPBqhj91Kkjt7hvO8Yt1q5u7gc-rcheB4qt--O43ZBJxHE0FiDkFJv0LI3nurhD0SJE0E_oBcTjkPFOYB78gDTgoe751kVDBnHjeExB44ha-Fdtl5aOjE1hrjhw9lkG17pWDdkxMEfIbNvSXP_j-0vOD_NpzeaB-qH8NHpABZkjAjI1mT3-cFKeuYpj5xW-g\",\r\n        \"refreshToken\": \"eyJjdHkiOiJKV1QiLCJlbmMiOiJBMjU2R0NNIiwiYWxnIjoiUlNBLU9BRVAifQ.ZCo-jNpSmUa6ZzR8HpQ6m1e8hcT_FNn92o_kd4Sk8D2-FFLTQ6Cyg3NtD60f6_wLWBjyBmaobDl6PC1sRjBy4ETnQs9Qq_PiY7fg9BFv2mWrQf-b2_NGRS0MiMYqBe8wA6GAsYqjvhPJ10XAc53DsdJEcRZId8lgUYcpz5RzHGX7vy6hVuDV3QA5kx_Q3Hokp_ZjTxl8ZtUxr_FUlSVZ_Qi--qj69VoMmISqlQlwQ31gS8AF736v7-ap71SCgvUNsfhi_dOju0EGiJbS7fMutdduKoiSREIfy8Dd35H9CbvvwJ6Boa_I3Gj9sR3gs7IyWZ-n8_0Xoaym1ipMS4o9CA.CGDoGK9uwcWWLlHz.epibl2KUJv3DFptm8bkwvCoyxyQ7NVhKAcJuPX0pTWlZ-UixdLjIjur44drH_VbcXRmexVjmuxr7vR4QwkWQQ5ZXll7NZsG_QLHbX4fw48vFO6xOKk15arFh5gCkDKL048uKKL0IFh1MDNrU2UjvYod3Hih2mtuLk3wu2yO2j63ymr8TSCj2GWCktNlbW2eMeUdtB98bP3euqOzWmEWDUAtD2ea_FkUlEDmffD6vzmeNH9w-VVrnmpgwV47Js2OqcEGdB9pkUw5hzQ6N8cdq7Ul0-0u54feOgzW9qFgOaD5kc_G-_ReqD4sBn9yapwFYNxEtN7tvZwk_7_PmcISWL8g8y08IzoWeC13hIt0wqM86YLep-wIB853aB6CjmRcOgjl1TumVUZ9EhIuvaR1bhnPiC4L52hCYFjUm2vZw2qBtTtNUY5ytJNfeo8gBUD9PwU5vLo78yD68qTwH1x93zYQ1MlW-vOf6mBaj1WWW9IR3wDqs0jtgbcEWIFQTrPQMflNKcEb3zAmnmWGpspC9LKHJu3tgKOMJ_NuZqDTNwLVbw-XfahV3_R3tjIO9OnuEvdBhby9qfSU9SrGvX41IMvK8YzabOaMrquKzMDj5Da7XOlLy9xNjCuvlrJIQwAJkncQhRxSPAqQgeXwUfTgDjYcDX8ro4D_yWVsY6iR6YJnoVvRJcu5cVjPMZOVmdUbRI5SUBH6ER1T2wHB-ln9PhXxVj-6mV2Okwva4cOLZtG-XDP1vjH9ibxv58f3xMNAsyN3W8fcB5yV36YsNvR89dsTQFpxPlzRPuIzJzlPNMqHNnoGHhHB64DIbCgH3DFZKLX-8N6xLKXrfcVHJfBxYVzCPMcoSEtWIPO5Fi6iWA1za4t9DY_9ZQ5dlaXbk5S3vMzzovwlc4FhM8hIXCCEn-a8giWGfAkCyBnMM4ZeI3K2zRUPVCSBrRzqGje7YmkgnHrjP21NGAJYpcSDLoAwNph5TQDibmE_5LPeBmGi9MzAW4oiBkrtKeMXl9IoN6xg1VavuGuFEZg3qZXwOd1y7t9WwyC3QAbggb9xFT1126LXCBoJPLANEqOQntoZ98KrtkZnsfI7_PYq91cpAnk24yJM4uR4kvJPUvsMTJofX7BOmgUoOG9Dpw9EdoYnnwkRtt8NUjZvJFCRuusSskNW_jrIGIfo9kg4QBii1-95nNmwQcRpi1LHHmYHMTcsuTTjELmGvTwWrtwJrx67DVrvko2uNL-x_kVKy4kA8VSbCtGojNrZsxoMxOxto5Nc84KByuT7X0mFlwF6ZUTOG64BdGrFbKOOvlg.ZKObgD-KqFT3omsdBDuvOA\",\r\n        \"expiresIn\": 3600,\r\n        \"tokenType\": \"Bearer\"\r\n    },\r\n    \"error\": null,\r\n    \"status\": \"success\"\r\n}"
+            }
+          ]
         }
       ]
     },
@@ -68,7 +111,7 @@
           "name": "owner / admin",
           "item": [
             {
-              "name": "Create event (OWNER / ADMIN, multipart, up to 8 images)",
+              "name": "Create event (OWNER)",
               "request": {
                 "method": "POST",
                 "header": [
@@ -86,22 +129,22 @@
                   "formdata": [
                     {
                       "key": "title",
-                      "value": "Rock Concert",
+                      "value": "Radahn Vs Malenia",
                       "type": "text"
                     },
                     {
                       "key": "description",
-                      "value": "Live rock music event downtown.",
+                      "value": "Es de un juego",
                       "type": "text"
                     },
                     {
                       "key": "maxPeople",
-                      "value": "500",
+                      "value": "2",
                       "type": "text"
                     },
                     {
                       "key": "address",
-                      "value": "Av. Javier Prado 1234, Lima",
+                      "value": "Mundo virtual",
                       "type": "text"
                     },
                     {
@@ -132,7 +175,11 @@
                     {
                       "key": "photos",
                       "type": "file",
-                      "src": ""
+                      "src": [
+                        "/C:/Users/Roberto/Pictures/488995426_1003629815247750_3501194247816447223_n.jpg",
+                        "/C:/Users/Roberto/Pictures/491812038_1012461034192590_1382177833916938303_n.jpg",
+                        "/C:/Users/Roberto/Pictures/492071681_2904143316453242_1996294965921586737_n.jpg"
+                      ]
                     }
                   ]
                 },
@@ -146,10 +193,112 @@
                   ]
                 }
               },
-              "response": []
+              "response": [
+                {
+                  "name": "Create event (OWNER)",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{accessToken}}"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "key": "title",
+                          "value": "Elden Ring fan fest",
+                          "type": "text"
+                        },
+                        {
+                          "key": "description",
+                          "value": "Música del OST de Elden Ring",
+                          "type": "text"
+                        },
+                        {
+                          "key": "maxPeople",
+                          "value": "50",
+                          "type": "text"
+                        },
+                        {
+                          "key": "address",
+                          "value": "Arenales XXXXXXXX",
+                          "type": "text"
+                        },
+                        {
+                          "key": "available",
+                          "value": "true",
+                          "type": "text"
+                        },
+                        {
+                          "key": "finished",
+                          "value": "false",
+                          "type": "text"
+                        },
+                        {
+                          "key": "startDate",
+                          "value": "2026-08-01T20:00:00",
+                          "type": "text"
+                        },
+                        {
+                          "key": "finishDate",
+                          "value": "2026-08-02T02:00:00",
+                          "type": "text"
+                        },
+                        {
+                          "key": "categoryId",
+                          "value": "1",
+                          "type": "text"
+                        },
+                        {
+                          "key": "photos",
+                          "type": "file",
+                          "src": [
+                            "/C:/Users/Roberto/Pictures/elden ring - BG1.jpg",
+                            "/C:/Users/Roberto/Pictures/elden ring - BG2.jpg",
+                            "/C:/Users/Roberto/Pictures/elden ring - BG3.jpg"
+                          ]
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/events",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "events"
+                      ]
+                    }
+                  },
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json",
+                      "description": "",
+                      "type": "text"
+                    }
+                  ],
+                  "cookie": [
+                    {
+                      "expires": "Invalid Date",
+                      "domain": "",
+                      "path": ""
+                    }
+                  ],
+                  "body": "{\r\n    \"code\": 201,\r\n    \"data\": {\r\n        \"id\": 4,\r\n        \"title\": \"Radahn Vs Malenia\",\r\n        \"description\": \"Es de un juego\",\r\n        \"maxPeople\": 2,\r\n        \"address\": \"Mundo virtual\",\r\n        \"available\": true,\r\n        \"finished\": false,\r\n        \"startDate\": \"2026-08-01T20:00:00\",\r\n        \"finishDate\": \"2026-08-02T02:00:00\",\r\n        \"ownerId\": 5,\r\n        \"categoryId\": 1,\r\n        \"ownerFullName\": null,\r\n        \"categoryName\": null,\r\n        \"images\": [\r\n            {\r\n                \"id\": 16,\r\n                \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/4/0-964ed32a-4af0-4ce4-bc23-838dd3fb52d9.jpg\",\r\n                \"index\": 0\r\n            },\r\n            {\r\n                \"id\": 17,\r\n                \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/4/1-7487fbd9-3dd3-4c7d-8439-09961eb48aba.jpg\",\r\n                \"index\": 1\r\n            },\r\n            {\r\n                \"id\": 18,\r\n                \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/4/2-5cb8c44a-d42c-41f0-8bf1-45ad220695d5.jpg\",\r\n                \"index\": 2\r\n            }\r\n        ]\r\n    },\r\n    \"error\": null,\r\n    \"status\": \"success\"\r\n}"
+                }
+              ]
             },
             {
-              "name": "Update event (OWNER / ADMIN, JSON)",
+              "name": "Update event (OWNER) JSON",
               "request": {
                 "method": "PUT",
                 "header": [
@@ -168,7 +317,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"title\": \"Updated Concert\",\n  \"description\": \"Updated description.\",\n  \"maxPeople\": 600,\n  \"address\": \"Av. Arequipa 4321, Lima\",\n  \"available\": true,\n  \"finished\": false,\n  \"startDate\": \"2026-08-10T20:00:00\",\n  \"finishDate\": \"2026-08-11T02:00:00\",\n  \"categoryId\": 1\n}",
+                  "raw": "{\n    \"title\": \"Radahn Vs Malenia\",\n    \"description\": \"Es de un juego\",\n    \"maxPeople\": 2,\n    \"address\": \"Mundo virtual\",\n    \"available\": true,\n    \"finished\": false,\n    \"startDate\": \"2026-08-01T20:00:00\",\n    \"finishDate\": \"2026-08-02T02:00:00\",\n    \"categoryId\": 2\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -176,20 +325,193 @@
                   }
                 },
                 "url": {
-                  "raw": "{{baseUrl}}/events/1",
+                  "raw": "{{baseUrl}}/events/4",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "events",
-                    "1"
+                    "4"
                   ]
                 }
               },
-              "response": []
+              "response": [
+                {
+                  "name": "Update event (OWNER) JSON",
+                  "originalRequest": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{accessToken}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n    \"title\": \"Radahn Vs Malenia\",\n    \"description\": \"Es de un juego\",\n    \"maxPeople\": 2,\n    \"address\": \"Mundo virtual\",\n    \"available\": true,\n    \"finished\": false,\n    \"startDate\": \"2026-08-01T20:00:00\",\n    \"finishDate\": \"2026-08-02T02:00:00\",\n    \"categoryId\": 2\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/events/4",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "events",
+                        "4"
+                      ]
+                    }
+                  },
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json",
+                      "description": "",
+                      "type": "text"
+                    }
+                  ],
+                  "cookie": [
+                    {
+                      "expires": "Invalid Date",
+                      "domain": "",
+                      "path": ""
+                    }
+                  ],
+                  "body": "{\r\n    \"code\": 200,\r\n    \"data\": {\r\n        \"id\": 4,\r\n        \"title\": \"Radahn Vs Malenia\",\r\n        \"description\": \"Es de un juego\",\r\n        \"maxPeople\": 2,\r\n        \"address\": \"Mundo virtual\",\r\n        \"available\": true,\r\n        \"finished\": false,\r\n        \"startDate\": \"2026-08-01T20:00:00\",\r\n        \"finishDate\": \"2026-08-02T02:00:00\",\r\n        \"ownerId\": 5,\r\n        \"categoryId\": 2,\r\n        \"ownerFullName\": null,\r\n        \"categoryName\": null,\r\n        \"images\": [\r\n            {\r\n                \"id\": 16,\r\n                \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/4/0-964ed32a-4af0-4ce4-bc23-838dd3fb52d9.jpg\",\r\n                \"index\": 0\r\n            },\r\n            {\r\n                \"id\": 17,\r\n                \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/4/1-7487fbd9-3dd3-4c7d-8439-09961eb48aba.jpg\",\r\n                \"index\": 1\r\n            },\r\n            {\r\n                \"id\": 18,\r\n                \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/4/2-5cb8c44a-d42c-41f0-8bf1-45ad220695d5.jpg\",\r\n                \"index\": 2\r\n            }\r\n        ]\r\n    },\r\n    \"error\": null,\r\n    \"status\": \"success\"\r\n}"
+                }
+              ]
             },
             {
-              "name": "Cancel event (OWNER / ADMIN)",
+              "name": "Update images from Event (OWNER)",
+              "request": {
+                "auth": {
+                  "type": "noauth"
+                },
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "photos",
+                      "type": "file",
+                      "uuid": "319d0742-ed5c-4bac-89e0-974cac980181",
+                      "src": [
+                        "/C:/Users/Roberto/Pictures/501053655_23909669695295139_6980266801306586256_n.jpg",
+                        "/C:/Users/Roberto/Pictures/elden ring - BG1.jpg",
+                        "/C:/Users/Roberto/Pictures/elden ring - BG2.jpg",
+                        "/C:/Users/Roberto/Pictures/elden ring - BG3.jpg"
+                      ]
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/events/4/images",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "events",
+                    "4",
+                    "images"
+                  ]
+                }
+              },
+              "response": [
+                {
+                  "name": "Update images from Event (OWNER)",
+                  "originalRequest": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{accessToken}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "key": "photos",
+                          "type": "file",
+                          "uuid": "319d0742-ed5c-4bac-89e0-974cac980181",
+                          "src": [
+                            "/C:/Users/Roberto/Pictures/501053655_23909669695295139_6980266801306586256_n.jpg",
+                            "/C:/Users/Roberto/Pictures/elden ring - BG1.jpg",
+                            "/C:/Users/Roberto/Pictures/elden ring - BG2.jpg",
+                            "/C:/Users/Roberto/Pictures/elden ring - BG3.jpg"
+                          ]
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/events/4/images",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "events",
+                        "4",
+                        "images"
+                      ]
+                    }
+                  },
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json",
+                      "description": "",
+                      "type": "text"
+                    }
+                  ],
+                  "cookie": [
+                    {
+                      "expires": "Invalid Date",
+                      "domain": "",
+                      "path": ""
+                    }
+                  ],
+                  "body": "{\r\n    \"code\": 200,\r\n    \"data\": {\r\n        \"id\": 4,\r\n        \"title\": \"Radahn Vs Malenia\",\r\n        \"description\": \"Es de un juego\",\r\n        \"maxPeople\": 2,\r\n        \"address\": \"Mundo virtual\",\r\n        \"available\": true,\r\n        \"finished\": false,\r\n        \"startDate\": \"2026-08-01T20:00:00\",\r\n        \"finishDate\": \"2026-08-02T02:00:00\",\r\n        \"ownerId\": 5,\r\n        \"categoryId\": 2,\r\n        \"ownerFullName\": null,\r\n        \"categoryName\": null,\r\n        \"images\": [\r\n            {\r\n                \"id\": 19,\r\n                \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/4/0-3e0cf097-b43f-4383-969e-2bf62b7c6d94.jpg\",\r\n                \"index\": 0\r\n            },\r\n            {\r\n                \"id\": 20,\r\n                \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/4/1-fe384a23-8a54-419c-9f9d-be5111e7a3b3.jpg\",\r\n                \"index\": 1\r\n            },\r\n            {\r\n                \"id\": 21,\r\n                \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/4/2-64c499aa-fbde-406f-9f0d-dffc64647f83.jpg\",\r\n                \"index\": 2\r\n            },\r\n            {\r\n                \"id\": 22,\r\n                \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/4/3-8d727fc9-c88b-4e14-aabe-b6c0e78901b3.jpg\",\r\n                \"index\": 3\r\n            }\r\n        ]\r\n    },\r\n    \"error\": null,\r\n    \"status\": \"success\"\r\n}"
+                }
+              ]
+            },
+            {
+              "name": "Cancel event (OWNER)",
               "request": {
                 "method": "PUT",
                 "header": [
@@ -203,21 +525,66 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{baseUrl}}/events/1/cancel",
+                  "raw": "{{baseUrl}}/events/4/cancel",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "events",
-                    "1",
+                    "4",
                     "cancel"
                   ]
                 }
               },
-              "response": []
+              "response": [
+                {
+                  "name": "Cancel event (OWNER)",
+                  "originalRequest": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{accessToken}}"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/events/4/cancel",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "events",
+                        "4",
+                        "cancel"
+                      ]
+                    }
+                  },
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json",
+                      "description": "",
+                      "type": "text"
+                    }
+                  ],
+                  "cookie": [
+                    {
+                      "expires": "Invalid Date",
+                      "domain": "",
+                      "path": ""
+                    }
+                  ],
+                  "body": "{\r\n    \"code\": 200,\r\n    \"data\": {\r\n        \"id\": 4,\r\n        \"title\": \"Radahn Vs Malenia\",\r\n        \"description\": \"Es de un juego\",\r\n        \"maxPeople\": 2,\r\n        \"address\": \"Mundo virtual\",\r\n        \"available\": false,\r\n        \"finished\": false,\r\n        \"startDate\": \"2026-08-01T20:00:00\",\r\n        \"finishDate\": \"2026-08-02T02:00:00\",\r\n        \"ownerId\": 5,\r\n        \"categoryId\": 2,\r\n        \"ownerFullName\": null,\r\n        \"categoryName\": null,\r\n        \"images\": [\r\n            {\r\n                \"id\": 19,\r\n                \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/4/0-3e0cf097-b43f-4383-969e-2bf62b7c6d94.jpg\",\r\n                \"index\": 0\r\n            },\r\n            {\r\n                \"id\": 20,\r\n                \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/4/1-fe384a23-8a54-419c-9f9d-be5111e7a3b3.jpg\",\r\n                \"index\": 1\r\n            },\r\n            {\r\n                \"id\": 21,\r\n                \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/4/2-64c499aa-fbde-406f-9f0d-dffc64647f83.jpg\",\r\n                \"index\": 2\r\n            },\r\n            {\r\n                \"id\": 22,\r\n                \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/4/3-8d727fc9-c88b-4e14-aabe-b6c0e78901b3.jpg\",\r\n                \"index\": 3\r\n            }\r\n        ]\r\n    },\r\n    \"error\": null,\r\n    \"status\": \"success\"\r\n}"
+                }
+              ]
             },
             {
-              "name": "List my events (OWNER / ADMIN)",
+              "name": "List my events (OWNER)",
               "request": {
                 "method": "GET",
                 "header": [
@@ -241,49 +608,58 @@
                   ]
                 }
               },
-              "response": []
-            },
-            {
-              "name": "Replace event images (OWNER / ADMIN, multipart, up to 8 images)",
-              "request": {
-                "method": "PUT",
-                "header": [
-                  {
-                    "key": "Authorization",
-                    "value": "Bearer {{accessToken}}"
-                  },
-                  {
-                    "key": "Accept",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "formdata",
-                  "formdata": [
-                    {
-                      "key": "photos",
-                      "type": "file",
-                      "src": ""
+              "response": [
+                {
+                  "name": "List my events (OWNER)",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{accessToken}}"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/events/me",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "events",
+                        "me"
+                      ]
                     }
-                  ]
-                },
-                "url": {
-                  "raw": "{{baseUrl}}/events/1/images",
-                  "host": [
-                    "{{baseUrl}}"
+                  },
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json",
+                      "description": "",
+                      "type": "text"
+                    }
                   ],
-                  "path": [
-                    "events",
-                    "1",
-                    "images"
-                  ]
+                  "cookie": [
+                    {
+                      "expires": "Invalid Date",
+                      "domain": "",
+                      "path": ""
+                    }
+                  ],
+                  "body": "{\r\n    \"code\": 200,\r\n    \"data\": [\r\n        {\r\n            \"id\": 4,\r\n            \"title\": \"Radahn Vs Malenia\",\r\n            \"description\": \"Es de un juego\",\r\n            \"maxPeople\": 2,\r\n            \"address\": \"Mundo virtual\",\r\n            \"available\": false,\r\n            \"finished\": false,\r\n            \"startDate\": \"2026-08-01T20:00:00\",\r\n            \"finishDate\": \"2026-08-02T02:00:00\",\r\n            \"ownerId\": 5,\r\n            \"categoryId\": 2,\r\n            \"ownerFullName\": null,\r\n            \"categoryName\": null,\r\n            \"images\": [\r\n                {\r\n                    \"id\": 19,\r\n                    \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/4/0-3e0cf097-b43f-4383-969e-2bf62b7c6d94.jpg\",\r\n                    \"index\": 0\r\n                },\r\n                {\r\n                    \"id\": 20,\r\n                    \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/4/1-fe384a23-8a54-419c-9f9d-be5111e7a3b3.jpg\",\r\n                    \"index\": 1\r\n                },\r\n                {\r\n                    \"id\": 21,\r\n                    \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/4/2-64c499aa-fbde-406f-9f0d-dffc64647f83.jpg\",\r\n                    \"index\": 2\r\n                },\r\n                {\r\n                    \"id\": 22,\r\n                    \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/4/3-8d727fc9-c88b-4e14-aabe-b6c0e78901b3.jpg\",\r\n                    \"index\": 3\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"error\": null,\r\n    \"status\": \"success\"\r\n}"
                 }
-              },
-              "response": []
+              ]
             },
             {
-              "name": "Delete selected event images (OWNER / ADMIN, JSON)",
+              "name": "DELETE images from event",
               "request": {
+                "auth": {
+                  "type": "noauth"
+                },
                 "method": "DELETE",
                 "header": [
                   {
@@ -301,7 +677,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"imagesId\": [1, 2]\n}",
+                  "raw": "{\r\n    \"imagesId\": [10]\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -309,18 +685,76 @@
                   }
                 },
                 "url": {
-                  "raw": "{{baseUrl}}/events/1/images",
+                  "raw": "{{baseUrl}}/events/3/images",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "events",
-                    "1",
+                    "3",
                     "images"
                   ]
                 }
               },
-              "response": []
+              "response": [
+                {
+                  "name": "DELETE images from event",
+                  "originalRequest": {
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{accessToken}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"imagesId\": [12, 13]\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/events/3/images",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "events",
+                        "3",
+                        "images"
+                      ]
+                    }
+                  },
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json",
+                      "description": "",
+                      "type": "text"
+                    }
+                  ],
+                  "cookie": [
+                    {
+                      "expires": "Invalid Date",
+                      "domain": "",
+                      "path": ""
+                    }
+                  ],
+                  "body": "{\r\n    \"code\": 200,\r\n    \"data\": {\r\n        \"id\": 3,\r\n        \"title\": \"Rock Concert\",\r\n        \"description\": \"Live rock music event downtown.\",\r\n        \"maxPeople\": 200,\r\n        \"address\": \"Av. Javier Prado 1234, Lima\",\r\n        \"available\": true,\r\n        \"finished\": false,\r\n        \"startDate\": \"2026-08-01T20:00:00\",\r\n        \"finishDate\": \"2026-08-02T02:00:00\",\r\n        \"ownerId\": 4,\r\n        \"categoryId\": 1,\r\n        \"ownerFullName\": null,\r\n        \"categoryName\": null,\r\n        \"images\": [\r\n            {\r\n                \"id\": 11,\r\n                \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/3/1-73704d56-6c72-4f37-9ddc-6585c29219a4.jpg\",\r\n                \"index\": 1\r\n            },\r\n            {\r\n                \"id\": 14,\r\n                \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/3/4-e1c73c6d-0428-4713-a3fc-bddf8f43acf0.jpg\",\r\n                \"index\": 4\r\n            },\r\n            {\r\n                \"id\": 15,\r\n                \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/3/5-44da7c5a-205e-4121-b533-ebce27c3c685.jpg\",\r\n                \"index\": 5\r\n            }\r\n        ]\r\n    },\r\n    \"error\": null,\r\n    \"status\": \"success\"\r\n}"
+                }
+              ]
             }
           ]
         },
@@ -353,7 +787,52 @@
                   ]
                 }
               },
-              "response": []
+              "response": [
+                {
+                  "name": "List my affiliated events (STAFF)",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{accessToken}}"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/events/me/staff",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "events",
+                        "me",
+                        "staff"
+                      ]
+                    }
+                  },
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json",
+                      "description": "",
+                      "type": "text"
+                    }
+                  ],
+                  "cookie": [
+                    {
+                      "expires": "Invalid Date",
+                      "domain": "",
+                      "path": ""
+                    }
+                  ],
+                  "body": "{\r\n    \"code\": 200,\r\n    \"data\": [\r\n        {\r\n            \"id\": 4,\r\n            \"title\": \"Radahn Vs Malenia\",\r\n            \"description\": \"Es de un juego\",\r\n            \"maxPeople\": 2,\r\n            \"address\": \"Mundo virtual\",\r\n            \"available\": false,\r\n            \"finished\": false,\r\n            \"startDate\": \"2026-08-01T20:00:00\",\r\n            \"finishDate\": \"2026-08-02T02:00:00\",\r\n            \"ownerId\": 5,\r\n            \"categoryId\": 2,\r\n            \"ownerFullName\": null,\r\n            \"categoryName\": null,\r\n            \"images\": [\r\n                {\r\n                    \"id\": 19,\r\n                    \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/4/0-3e0cf097-b43f-4383-969e-2bf62b7c6d94.jpg\",\r\n                    \"index\": 0\r\n                },\r\n                {\r\n                    \"id\": 20,\r\n                    \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/4/1-fe384a23-8a54-419c-9f9d-be5111e7a3b3.jpg\",\r\n                    \"index\": 1\r\n                },\r\n                {\r\n                    \"id\": 21,\r\n                    \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/4/2-64c499aa-fbde-406f-9f0d-dffc64647f83.jpg\",\r\n                    \"index\": 2\r\n                },\r\n                {\r\n                    \"id\": 22,\r\n                    \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/4/3-8d727fc9-c88b-4e14-aabe-b6c0e78901b3.jpg\",\r\n                    \"index\": 3\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"error\": null,\r\n    \"status\": \"success\"\r\n}"
+                }
+              ]
             },
             {
               "name": "Update event description and category (STAFF, JSON)",
@@ -375,7 +854,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"description\": \"New staff description.\",\n  \"categoryId\": 1\n}",
+                  "raw": "{\n  \"description\": \"Fight to death\",\n  \"categoryId\": 2\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -383,18 +862,76 @@
                   }
                 },
                 "url": {
-                  "raw": "{{baseUrl}}/events/1/staff",
+                  "raw": "{{baseUrl}}/events/4/staff",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "events",
-                    "1",
+                    "4",
                     "staff"
                   ]
                 }
               },
-              "response": []
+              "response": [
+                {
+                  "name": "Update event description and category (STAFF, JSON)",
+                  "originalRequest": {
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{accessToken}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"description\": \"Fight to death\",\n  \"categoryId\": 2\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/events/4/staff",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "events",
+                        "4",
+                        "staff"
+                      ]
+                    }
+                  },
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json",
+                      "description": "",
+                      "type": "text"
+                    }
+                  ],
+                  "cookie": [
+                    {
+                      "expires": "Invalid Date",
+                      "domain": "",
+                      "path": ""
+                    }
+                  ],
+                  "body": "{\r\n    \"code\": 200,\r\n    \"data\": {\r\n        \"id\": 4,\r\n        \"title\": \"Radahn Vs Malenia\",\r\n        \"description\": \"Fight to death\",\r\n        \"maxPeople\": 2,\r\n        \"address\": \"Mundo virtual\",\r\n        \"available\": false,\r\n        \"finished\": false,\r\n        \"startDate\": \"2026-08-01T20:00:00\",\r\n        \"finishDate\": \"2026-08-02T02:00:00\",\r\n        \"ownerId\": 5,\r\n        \"categoryId\": 2,\r\n        \"ownerFullName\": null,\r\n        \"categoryName\": null,\r\n        \"images\": [\r\n            {\r\n                \"id\": 19,\r\n                \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/4/0-3e0cf097-b43f-4383-969e-2bf62b7c6d94.jpg\",\r\n                \"index\": 0\r\n            },\r\n            {\r\n                \"id\": 20,\r\n                \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/4/1-fe384a23-8a54-419c-9f9d-be5111e7a3b3.jpg\",\r\n                \"index\": 1\r\n            },\r\n            {\r\n                \"id\": 21,\r\n                \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/4/2-64c499aa-fbde-406f-9f0d-dffc64647f83.jpg\",\r\n                \"index\": 2\r\n            },\r\n            {\r\n                \"id\": 22,\r\n                \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/4/3-8d727fc9-c88b-4e14-aabe-b6c0e78901b3.jpg\",\r\n                \"index\": 3\r\n            }\r\n        ]\r\n    },\r\n    \"error\": null,\r\n    \"status\": \"success\"\r\n}"
+                }
+              ]
             }
           ]
         },
@@ -416,7 +953,7 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{baseUrl}}/events?title=Concert&startDate=2026-01-01T00:00:00&finishDate=2026-12-31T23:59:59&categoryId=1&page=0",
+                  "raw": "{{baseUrl}}/events?startDate=2026-01-01T00:00:00&finishDate=2026-12-31T23:59:59&categoryId=1&page=0",
                   "host": [
                     "{{baseUrl}}"
                   ],
@@ -426,7 +963,8 @@
                   "query": [
                     {
                       "key": "title",
-                      "value": "Concert"
+                      "value": "Concert",
+                      "disabled": true
                     },
                     {
                       "key": "startDate",
@@ -447,7 +985,73 @@
                   ]
                 }
               },
-              "response": []
+              "response": [
+                {
+                  "name": "Search active events (CLIENT)",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{accessToken}}"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/events?startDate=2026-01-01T00:00:00&finishDate=2026-12-31T23:59:59&categoryId=1&page=0",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "events"
+                      ],
+                      "query": [
+                        {
+                          "key": "title",
+                          "value": "Concert",
+                          "disabled": true
+                        },
+                        {
+                          "key": "startDate",
+                          "value": "2026-01-01T00:00:00"
+                        },
+                        {
+                          "key": "finishDate",
+                          "value": "2026-12-31T23:59:59"
+                        },
+                        {
+                          "key": "categoryId",
+                          "value": "1"
+                        },
+                        {
+                          "key": "page",
+                          "value": "0"
+                        }
+                      ]
+                    }
+                  },
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json",
+                      "description": "",
+                      "type": "text"
+                    }
+                  ],
+                  "cookie": [
+                    {
+                      "expires": "Invalid Date",
+                      "domain": "",
+                      "path": ""
+                    }
+                  ],
+                  "body": "{\r\n    \"code\": 200,\r\n    \"data\": {\r\n        \"items\": [\r\n            {\r\n                \"id\": 1,\r\n                \"title\": \"title\",\r\n                \"description\": \"description\",\r\n                \"maxPeople\": 200,\r\n                \"address\": \"dadada\",\r\n                \"available\": true,\r\n                \"finished\": false,\r\n                \"startDate\": \"2026-07-09T00:00:00\",\r\n                \"finishDate\": \"2026-07-09T00:00:00\",\r\n                \"ownerId\": 1,\r\n                \"categoryId\": 1,\r\n                \"ownerFullName\": \"Roberto Contreras Gonzales OWNER\",\r\n                \"categoryName\": \"FIESTAS\",\r\n                \"images\": []\r\n            },\r\n            {\r\n                \"id\": 3,\r\n                \"title\": \"Rock Concert\",\r\n                \"description\": \"Live rock music event downtown.\",\r\n                \"maxPeople\": 200,\r\n                \"address\": \"Av. Javier Prado 1234, Lima\",\r\n                \"available\": true,\r\n                \"finished\": false,\r\n                \"startDate\": \"2026-08-01T20:00:00\",\r\n                \"finishDate\": \"2026-08-02T02:00:00\",\r\n                \"ownerId\": 4,\r\n                \"categoryId\": 1,\r\n                \"ownerFullName\": \"Event Owner\",\r\n                \"categoryName\": \"FIESTAS\",\r\n                \"images\": [\r\n                    {\r\n                        \"id\": 10,\r\n                        \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/3/0-f93259ab-c771-4417-86e3-b54ad13a4eee.jpg\",\r\n                        \"index\": 0\r\n                    },\r\n                    {\r\n                        \"id\": 11,\r\n                        \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/3/1-73704d56-6c72-4f37-9ddc-6585c29219a4.jpg\",\r\n                        \"index\": 1\r\n                    },\r\n                    {\r\n                        \"id\": 14,\r\n                        \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/3/4-e1c73c6d-0428-4713-a3fc-bddf8f43acf0.jpg\",\r\n                        \"index\": 4\r\n                    },\r\n                    {\r\n                        \"id\": 15,\r\n                        \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/3/5-44da7c5a-205e-4121-b533-ebce27c3c685.jpg\",\r\n                        \"index\": 5\r\n                    }\r\n                ]\r\n            }\r\n        ],\r\n        \"total\": 2,\r\n        \"page\": 0,\r\n        \"pageSize\": 12,\r\n        \"totalPages\": 1\r\n    },\r\n    \"error\": null,\r\n    \"status\": \"success\"\r\n}"
+                }
+              ]
             },
             {
               "name": "Get active event by id (CLIENT)",
@@ -464,17 +1068,61 @@
                   }
                 ],
                 "url": {
-                  "raw": "{{baseUrl}}/events/1",
+                  "raw": "{{baseUrl}}/events/3",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "events",
-                    "1"
+                    "3"
                   ]
                 }
               },
-              "response": []
+              "response": [
+                {
+                  "name": "Get active event by id (CLIENT)",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{accessToken}}"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/events/3",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "events",
+                        "3"
+                      ]
+                    }
+                  },
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json",
+                      "description": "",
+                      "type": "text"
+                    }
+                  ],
+                  "cookie": [
+                    {
+                      "expires": "Invalid Date",
+                      "domain": "",
+                      "path": ""
+                    }
+                  ],
+                  "body": "{\r\n    \"code\": 200,\r\n    \"data\": {\r\n        \"id\": 3,\r\n        \"title\": \"Rock Concert\",\r\n        \"description\": \"Live rock music event downtown.\",\r\n        \"maxPeople\": 200,\r\n        \"address\": \"Av. Javier Prado 1234, Lima\",\r\n        \"available\": true,\r\n        \"finished\": false,\r\n        \"startDate\": \"2026-08-01T20:00:00\",\r\n        \"finishDate\": \"2026-08-02T02:00:00\",\r\n        \"ownerId\": 4,\r\n        \"categoryId\": 1,\r\n        \"ownerFullName\": \"Event Owner\",\r\n        \"categoryName\": \"FIESTAS\",\r\n        \"images\": [\r\n            {\r\n                \"id\": 10,\r\n                \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/3/0-f93259ab-c771-4417-86e3-b54ad13a4eee.jpg\",\r\n                \"index\": 0\r\n            },\r\n            {\r\n                \"id\": 11,\r\n                \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/3/1-73704d56-6c72-4f37-9ddc-6585c29219a4.jpg\",\r\n                \"index\": 1\r\n            },\r\n            {\r\n                \"id\": 14,\r\n                \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/3/4-e1c73c6d-0428-4713-a3fc-bddf8f43acf0.jpg\",\r\n                \"index\": 4\r\n            },\r\n            {\r\n                \"id\": 15,\r\n                \"url\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/event-images/3/5-44da7c5a-205e-4121-b533-ebce27c3c685.jpg\",\r\n                \"index\": 5\r\n            }\r\n        ]\r\n    },\r\n    \"error\": null,\r\n    \"status\": \"success\"\r\n}"
+                }
+              ]
             }
           ]
         },
@@ -482,7 +1130,7 @@
           "name": "categories",
           "item": [
             {
-              "name": "Create category (ADMIN, JSON)",
+              "name": "Create category (ADMIN)",
               "request": {
                 "method": "POST",
                 "header": [
@@ -501,7 +1149,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n  \"name\": \"Music\",\n  \"description\": \"Live music events\"\n}",
+                  "raw": "{\n  \"name\": \"Reunion formal\",\n  \"description\": \"Reunión formal de empresa\"\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -519,7 +1167,64 @@
                   ]
                 }
               },
-              "response": []
+              "response": [
+                {
+                  "name": "Create category (ADMIN)",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{accessToken}}"
+                      },
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": \"Reunion formal\",\n  \"description\": \"Reunión formal de empresa\"\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/events/categories",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "events",
+                        "categories"
+                      ]
+                    }
+                  },
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json",
+                      "description": "",
+                      "type": "text"
+                    }
+                  ],
+                  "cookie": [
+                    {
+                      "expires": "Invalid Date",
+                      "domain": "",
+                      "path": ""
+                    }
+                  ],
+                  "body": "{\r\n    \"code\": 201,\r\n    \"data\": {\r\n        \"id\": 2,\r\n        \"name\": \"Reunion formal\",\r\n        \"description\": \"Reunión formal de empresa\"\r\n    },\r\n    \"error\": null,\r\n    \"status\": \"success\"\r\n}"
+                }
+              ]
             },
             {
               "name": "List categories (any authenticated role)",
@@ -546,7 +1251,51 @@
                   ]
                 }
               },
-              "response": []
+              "response": [
+                {
+                  "name": "List categories (any authenticated role)",
+                  "originalRequest": {
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{accessToken}}"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "url": {
+                      "raw": "{{baseUrl}}/events/categories",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "events",
+                        "categories"
+                      ]
+                    }
+                  },
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json",
+                      "description": "",
+                      "type": "text"
+                    }
+                  ],
+                  "cookie": [
+                    {
+                      "expires": "Invalid Date",
+                      "domain": "",
+                      "path": ""
+                    }
+                  ],
+                  "body": "{\r\n    \"code\": 200,\r\n    \"data\": [\r\n        {\r\n            \"id\": 1,\r\n            \"name\": \"FIESTAS\",\r\n            \"description\": \"fiestas p, q más va ser?\"\r\n        }\r\n    ],\r\n    \"error\": null,\r\n    \"status\": \"success\"\r\n}"
+                }
+              ]
             }
           ]
         }
@@ -577,12 +1326,12 @@
                   "formdata": [
                     {
                       "key": "email",
-                      "value": "staff2@example.com",
+                      "value": "staff3@example.com",
                       "type": "text"
                     },
                     {
                       "key": "phoneNumber",
-                      "value": "+51987611121",
+                      "value": "+51907611121",
                       "type": "text"
                     },
                     {
@@ -597,12 +1346,12 @@
                     },
                     {
                       "key": "dni",
-                      "value": "87654322",
+                      "value": "87601322",
                       "type": "text"
                     },
                     {
                       "key": "eventId",
-                      "value": "1",
+                      "value": "4",
                       "type": "text"
                     },
                     {
@@ -629,7 +1378,97 @@
                   ]
                 }
               },
-              "response": []
+              "response": [
+                {
+                  "name": "Create STAFF account + affiliate to event (OWNER only)",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{accessToken}}"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "key": "email",
+                          "value": "staff2@example.com",
+                          "type": "text"
+                        },
+                        {
+                          "key": "phoneNumber",
+                          "value": "+51987611121",
+                          "type": "text"
+                        },
+                        {
+                          "key": "fullname",
+                          "value": "Staff Member",
+                          "type": "text"
+                        },
+                        {
+                          "key": "birthdate",
+                          "value": "1990-01-01",
+                          "type": "text"
+                        },
+                        {
+                          "key": "dni",
+                          "value": "87654322",
+                          "type": "text"
+                        },
+                        {
+                          "key": "eventId",
+                          "value": "1",
+                          "type": "text"
+                        },
+                        {
+                          "key": "photo",
+                          "type": "file",
+                          "value": ""
+                        },
+                        {
+                          "key": "password",
+                          "value": "password",
+                          "type": "text",
+                          "uuid": "cbafbded-1ddd-48de-bcfe-284bb3b83848"
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/users/staff",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "users",
+                        "staff"
+                      ]
+                    }
+                  },
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json",
+                      "description": "",
+                      "type": "text"
+                    }
+                  ],
+                  "cookie": [
+                    {
+                      "expires": "Invalid Date",
+                      "domain": "",
+                      "path": ""
+                    }
+                  ],
+                  "body": "{\r\n    \"code\": 201,\r\n    \"data\": {\r\n        \"id\": 11,\r\n        \"email\": \"staff3@example.com\",\r\n        \"phoneNumber\": \"+51907611121\",\r\n        \"fullname\": \"Staff Member\",\r\n        \"birthdate\": \"1990-01-01\",\r\n        \"dni\": \"87601322\",\r\n        \"photoUrl\": null,\r\n        \"role\": \"STAFF\"\r\n    },\r\n    \"error\": null,\r\n    \"status\": \"success\"\r\n}"
+                }
+              ]
             },
             {
               "name": "Affiliate staff to event",
@@ -647,7 +1486,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"userId\": 3,\r\n    \"eventId\": 1\r\n}",
+                  "raw": "{\r\n    \"userId\": 11,\r\n    \"eventId\": 4\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -666,7 +1505,61 @@
                   ]
                 }
               },
-              "response": []
+              "response": [
+                {
+                  "name": "Affiliate staff to event",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{accessToken}}"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"userId\": 11,\r\n    \"eventId\": 4\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/users/staff/affiliate",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "users",
+                        "staff",
+                        "affiliate"
+                      ]
+                    }
+                  },
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json",
+                      "description": "",
+                      "type": "text"
+                    }
+                  ],
+                  "cookie": [
+                    {
+                      "expires": "Invalid Date",
+                      "domain": "",
+                      "path": ""
+                    }
+                  ],
+                  "body": "{\r\n    \"code\": 200,\r\n    \"data\": null,\r\n    \"error\": null,\r\n    \"status\": \"success\"\r\n}"
+                }
+              ]
             }
           ]
         },
@@ -692,12 +1585,12 @@
                   "formdata": [
                     {
                       "key": "email",
-                      "value": "owner2@example.com",
+                      "value": "jefe@gmail.com",
                       "type": "text"
                     },
                     {
                       "key": "phoneNumber",
-                      "value": "+51987600199",
+                      "value": "+51987600177",
                       "type": "text"
                     },
                     {
@@ -712,7 +1605,7 @@
                     },
                     {
                       "key": "dni",
-                      "value": "11223341",
+                      "value": "11223441",
                       "type": "text"
                     },
                     {
@@ -728,7 +1621,7 @@
                     },
                     {
                       "key": "ruc",
-                      "value": "123456789123",
+                      "value": "123456787123",
                       "type": "text",
                       "uuid": "12ef4503-f0ae-48d9-bb51-81567002f551"
                     }
@@ -745,7 +1638,98 @@
                   ]
                 }
               },
-              "response": []
+              "response": [
+                {
+                  "name": "Create OWNER account (ADMIN only)",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer {{accessToken}}"
+                      },
+                      {
+                        "key": "Accept",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "formdata",
+                      "formdata": [
+                        {
+                          "key": "email",
+                          "value": "jefe@gmail.com",
+                          "type": "text"
+                        },
+                        {
+                          "key": "phoneNumber",
+                          "value": "+51987600177",
+                          "type": "text"
+                        },
+                        {
+                          "key": "fullname",
+                          "value": "Event Owner",
+                          "type": "text"
+                        },
+                        {
+                          "key": "birthdate",
+                          "value": "1985-06-15",
+                          "type": "text"
+                        },
+                        {
+                          "key": "dni",
+                          "value": "11223441",
+                          "type": "text"
+                        },
+                        {
+                          "key": "photo",
+                          "type": "file",
+                          "value": ""
+                        },
+                        {
+                          "key": "password",
+                          "value": "password",
+                          "type": "text",
+                          "uuid": "380998e0-8fca-42c9-8e8c-99e109b20d33"
+                        },
+                        {
+                          "key": "ruc",
+                          "value": "123456787123",
+                          "type": "text",
+                          "uuid": "12ef4503-f0ae-48d9-bb51-81567002f551"
+                        }
+                      ]
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/users/owner",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "users",
+                        "owner"
+                      ]
+                    }
+                  },
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json",
+                      "description": "",
+                      "type": "text"
+                    }
+                  ],
+                  "cookie": [
+                    {
+                      "expires": "Invalid Date",
+                      "domain": "",
+                      "path": ""
+                    }
+                  ],
+                  "body": "{\r\n    \"code\": 201,\r\n    \"data\": {\r\n        \"id\": 10,\r\n        \"email\": \"jefe@gmail.com\",\r\n        \"phoneNumber\": \"+51987600177\",\r\n        \"fullname\": \"Event Owner\",\r\n        \"birthdate\": \"1985-06-15\",\r\n        \"dni\": \"11223441\",\r\n        \"photoUrl\": null,\r\n        \"role\": \"OWNER\"\r\n    },\r\n    \"error\": null,\r\n    \"status\": \"success\"\r\n}"
+                }
+              ]
             },
             {
               "name": "Convert CLIENT to OWNER",
@@ -771,7 +1755,7 @@
                 ],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\r\n    \"ruc\": \"123456789101\"\r\n}",
+                  "raw": "{\r\n    \"ruc\": \"123456789171\"\r\n}",
                   "options": {
                     "raw": {
                       "language": "json"
@@ -779,18 +1763,70 @@
                   }
                 },
                 "url": {
-                  "raw": "{{baseUrl}}/users/5/owner",
+                  "raw": "{{baseUrl}}/users/9/owner",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
                     "users",
-                    "5",
+                    "9",
                     "owner"
                   ]
                 }
               },
-              "response": []
+              "response": [
+                {
+                  "name": "Convert CLIENT to OWNER",
+                  "originalRequest": {
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Authorization",
+                        "value": "Bearer  {{accessToken}}",
+                        "type": "text",
+                        "disabled": true
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"ruc\": \"123456789101\"\r\n}",
+                      "options": {
+                        "raw": {
+                          "language": "json"
+                        }
+                      }
+                    },
+                    "url": {
+                      "raw": "{{baseUrl}}/users/9/owner",
+                      "host": [
+                        "{{baseUrl}}"
+                      ],
+                      "path": [
+                        "users",
+                        "9",
+                        "owner"
+                      ]
+                    }
+                  },
+                  "_postman_previewlanguage": "json",
+                  "header": [
+                    {
+                      "key": "Content-Type",
+                      "value": "application/json",
+                      "description": "",
+                      "type": "text"
+                    }
+                  ],
+                  "cookie": [
+                    {
+                      "expires": "Invalid Date",
+                      "domain": "",
+                      "path": ""
+                    }
+                  ],
+                  "body": "{\r\n    \"code\": 200,\r\n    \"data\": {\r\n        \"id\": 9,\r\n        \"email\": \"robertocg25dev@gmail.com\",\r\n        \"phoneNumber\": \"+51915368205\",\r\n        \"fullname\": \"Roberto Contreras Gonzales OWNER\",\r\n        \"birthdate\": \"2002-03-12\",\r\n        \"dni\": \"01133423\",\r\n        \"photoUrl\": null,\r\n        \"role\": \"OWNER\"\r\n    },\r\n    \"error\": null,\r\n    \"status\": \"success\"\r\n}"
+                }
+              ]
             }
           ]
         },
@@ -809,12 +1845,12 @@
               "formdata": [
                 {
                   "key": "email",
-                  "value": "robertocg23dev@gmail.com",
+                  "value": "robertocg25dev@gmail.com",
                   "type": "text"
                 },
                 {
                   "key": "phoneNumber",
-                  "value": "+51925368243",
+                  "value": "+51915368205",
                   "type": "text"
                 },
                 {
@@ -829,17 +1865,17 @@
                 },
                 {
                   "key": "dni",
-                  "value": "81133323",
+                  "value": "01133423",
                   "type": "text"
                 },
                 {
                   "key": "photo",
                   "type": "file",
-                  "src": "/C:/Users/Roberto/Pictures/490294707_1227186529410733_4040393529342565544_n.jpg"
+                  "value": null
                 },
                 {
                   "key": "password",
-                  "value": "contrasena@123",
+                  "value": "password",
                   "type": "text",
                   "uuid": "02f73ce3-cb0d-4d5c-9d07-87873d08c73a"
                 }
@@ -855,7 +1891,87 @@
               ]
             }
           },
-          "response": []
+          "response": [
+            {
+              "name": "Create CLIENT account (form-data + optional photo)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "email",
+                      "value": "robertocg25dev@gmail.com",
+                      "type": "text"
+                    },
+                    {
+                      "key": "phoneNumber",
+                      "value": "+51915368205",
+                      "type": "text"
+                    },
+                    {
+                      "key": "fullname",
+                      "value": "Roberto Contreras Gonzales OWNER",
+                      "type": "text"
+                    },
+                    {
+                      "key": "birthdate",
+                      "value": "2002-03-12",
+                      "type": "text"
+                    },
+                    {
+                      "key": "dni",
+                      "value": "01133423",
+                      "type": "text"
+                    },
+                    {
+                      "key": "photo",
+                      "type": "file",
+                      "value": null
+                    },
+                    {
+                      "key": "password",
+                      "value": "password",
+                      "type": "text",
+                      "uuid": "02f73ce3-cb0d-4d5c-9d07-87873d08c73a"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users"
+                  ]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\r\n    \"code\": 201,\r\n    \"data\": {\r\n        \"id\": 9,\r\n        \"email\": \"robertocg25dev@gmail.com\",\r\n        \"phoneNumber\": \"+51915368205\",\r\n        \"fullname\": \"Roberto Contreras Gonzales OWNER\",\r\n        \"birthdate\": \"2002-03-12\",\r\n        \"dni\": \"01133423\",\r\n        \"photoUrl\": null,\r\n        \"role\": \"CLIENT\"\r\n    },\r\n    \"error\": null,\r\n    \"status\": \"success\"\r\n}"
+            }
+          ]
         },
         {
           "name": "Get my profile (any authenticated role)",
@@ -882,7 +1998,38 @@
               ]
             }
           },
-          "response": []
+          "response": [
+            {
+              "name": "Get my profile (any authenticated role)",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me"
+                  ]
+                }
+              },
+              "_postman_previewlanguage": null,
+              "header": null,
+              "cookie": [],
+              "body": null
+            }
+          ]
         },
         {
           "name": "Update my profile (any authenticated role)",
@@ -904,7 +2051,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fullname\": \"Vicuña\",\n  \"phoneNumber\": \"+51987659999\",\n  \"birthdate\": \"1995-04-12\",\n  \"dni\": \"12345676\"\n}",
+              "raw": "{\n  \"fullname\": \"Roberto Contreras Gonzales\",\n  \"phoneNumber\": \"+51987659999\",\n  \"birthdate\": \"2002-03-12\",\n  \"dni\": \"12345676\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -922,7 +2069,64 @@
               ]
             }
           },
-          "response": []
+          "response": [
+            {
+              "name": "Update my profile (any authenticated role)",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"fullname\": \"Vicuña\",\n  \"phoneNumber\": \"+51987659999\",\n  \"birthdate\": \"1995-04-12\",\n  \"dni\": \"12345676\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users/me",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me"
+                  ]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\r\n    \"code\": 200,\r\n    \"data\": {\r\n        \"id\": 8,\r\n        \"email\": \"robertocg24dev@gmail.com\",\r\n        \"phoneNumber\": \"+51987659999\",\r\n        \"fullname\": \"Roberto Contreras Gonzales\",\r\n        \"birthdate\": \"2002-03-12\",\r\n        \"dni\": \"12345676\",\r\n        \"photoUrl\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/profile-pictures/8/ee936296-f148-4dfa-9c37-d0eb9c474aa6.jpg\",\r\n        \"role\": \"CLIENT\"\r\n    },\r\n    \"error\": null,\r\n    \"status\": \"success\"\r\n}"
+            }
+          ]
         },
         {
           "name": "Upload / replace my profile picture (form-data)",
@@ -944,7 +2148,7 @@
                 {
                   "key": "photo",
                   "type": "file",
-                  "src": "/C:/Users/Roberto/Pictures/hisoka.JPG"
+                  "src": "/C:/Users/Roberto/Pictures/521358046_1275141680883951_6951387775516205575_n.jpg"
                 }
               ]
             },
@@ -960,7 +2164,62 @@
               ]
             }
           },
-          "response": []
+          "response": [
+            {
+              "name": "Upload / replace my profile picture (form-data)",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  },
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "photo",
+                      "type": "file",
+                      "src": "/C:/Users/Roberto/Pictures/hisoka.JPG"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users/me/photo",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me",
+                    "photo"
+                  ]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\r\n    \"code\": 200,\r\n    \"data\": {\r\n        \"id\": 8,\r\n        \"email\": \"robertocg24dev@gmail.com\",\r\n        \"phoneNumber\": \"+51925368203\",\r\n        \"fullname\": \"Roberto Contreras Gonzales OWNER\",\r\n        \"birthdate\": \"2002-03-12\",\r\n        \"dni\": \"01133323\",\r\n        \"photoUrl\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/profile-pictures/8/7416aa11-e035-4276-b9d8-37c6db8565d3.jpg\",\r\n        \"role\": \"CLIENT\"\r\n    },\r\n    \"error\": null,\r\n    \"status\": \"success\"\r\n}"
+            }
+          ]
         },
         {
           "name": "Delete my profile picture",
@@ -984,7 +2243,48 @@
               ]
             }
           },
-          "response": []
+          "response": [
+            {
+              "name": "Delete my profile picture",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/users/me/photo",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "me",
+                    "photo"
+                  ]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\r\n    \"code\": 200,\r\n    \"data\": null,\r\n    \"error\": null,\r\n    \"status\": \"success\"\r\n}"
+            }
+          ]
         },
         {
           "name": "Delete account by id (ADMIN only)",
@@ -1021,7 +2321,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"userId\": 3,\r\n    \"eventId\": 1\r\n}",
+              "raw": "{\r\n    \"userId\": 4,\r\n    \"eventId\": 1\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1029,21 +2329,392 @@
               }
             },
             "url": {
-              "raw": "{{baseUrl}}/users/3/staff/1",
+              "raw": "{{baseUrl}}/users/staff/disaffiliate",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "users",
-                "3",
                 "staff",
-                "1"
+                "disaffiliate"
               ]
             }
           },
-          "response": []
+          "response": [
+            {
+              "name": "Desaffiliate staff user from event (OWNER / ADMIN)",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{accessToken}}"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"userId\": 4,\r\n    \"eventId\": 1\r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/users/3/staff/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "users",
+                    "3",
+                    "staff",
+                    "1"
+                  ]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\r\n    \"code\": 200,\r\n    \"data\": null,\r\n    \"error\": null,\r\n    \"status\": \"success\"\r\n}"
+            }
+          ]
         }
       ]
+    },
+    {
+      "name": "qr",
+      "item": [
+        {
+          "name": "Inscript to an event",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/qr/events/3/tickets",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "qr",
+                "events",
+                "3",
+                "tickets"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Inscript to an event",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/qr/events/3/tickets",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "qr",
+                    "events",
+                    "3",
+                    "tickets"
+                  ]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\r\n    \"code\": 201,\r\n    \"data\": {\r\n        \"id\": 1,\r\n        \"userId\": 8,\r\n        \"eventId\": 3,\r\n        \"qrUrl\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/qr-codes/8/3-e27c09b0-1537-4005-81b5-bc2edf318dc3.png\",\r\n        \"alreadyApplied\": false\r\n    },\r\n    \"error\": null,\r\n    \"status\": \"success\"\r\n}"
+            }
+          ]
+        },
+        {
+          "name": "QR Validation ticket",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "qr",
+                  "type": "file",
+                  "uuid": "310833e0-cf84-49a7-8579-65df73aa803c",
+                  "src": "/C:/Users/Roberto/Downloads/3-e27c09b0-1537-4005-81b5-bc2edf318dc3.png"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/qr/tickets/validate",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "qr",
+                "tickets",
+                "validate"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "QR Validation ticket",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "qr",
+                      "type": "file",
+                      "uuid": "310833e0-cf84-49a7-8579-65df73aa803c",
+                      "src": "/C:/Users/Roberto/Downloads/3-e27c09b0-1537-4005-81b5-bc2edf318dc3.png"
+                    }
+                  ]
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/qr/tickets/validate",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "qr",
+                    "tickets",
+                    "validate"
+                  ]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\n    \"code\": 200,\n    \"data\": {\n        \"valid\": false\n    },\n    \"error\": null,\n    \"status\": \"success\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "GET List Assistance event",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/qr/events/3/assistants",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "qr",
+                "events",
+                "3",
+                "assistants"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "GET List Assistance event",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/events/3/assistants",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "events",
+                    "3",
+                    "assistants"
+                  ]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\r\n    \"code\": 200,\r\n    \"data\": [\r\n        {\r\n            \"id\": 1,\r\n            \"userId\": 8,\r\n            \"eventId\": 3,\r\n            \"registerDate\": \"2026-07-13T23:44:47\"\r\n        }\r\n    ],\r\n    \"error\": null,\r\n    \"status\": \"success\"\r\n}"
+            }
+          ]
+        },
+        {
+          "name": "My events",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [
+              {
+                "key": "",
+                "value": "",
+                "type": "text",
+                "disabled": true
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/qr/me/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "qr",
+                "me",
+                "events"
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "My events",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/qr/me/events",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "qr",
+                    "me",
+                    "events"
+                  ]
+                }
+              },
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json",
+                  "description": "",
+                  "type": "text"
+                }
+              ],
+              "cookie": [
+                {
+                  "expires": "Invalid Date",
+                  "domain": "",
+                  "path": ""
+                }
+              ],
+              "body": "{\r\n    \"code\": 200,\r\n    \"data\": [\r\n        {\r\n            \"qrUrl\": \"https://teleticket-lite-images-561547870320.s3.us-east-1.amazonaws.com/qr-codes/8/3-e27c09b0-1537-4005-81b5-bc2edf318dc3.png\",\r\n            \"alreadyApplied\": true,\r\n            \"eventName\": \"Rock Concert\",\r\n            \"eventAddress\": \"Av. Javier Prado 1234, Lima\",\r\n            \"startDate\": \"2026-08-01T20:00:00\",\r\n            \"endDate\": \"2026-08-02T02:00:00\"\r\n        }\r\n    ],\r\n    \"error\": null,\r\n    \"status\": \"success\"\r\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
     }
   ],
   "variable": [
