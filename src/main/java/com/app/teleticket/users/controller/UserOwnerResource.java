@@ -22,8 +22,8 @@ import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 
 /**
- * Everything related to the OWNER role: account creation (ADMIN only) and
- * promoting an existing user to OWNER (ADMIN only).
+ * Todo lo relacionado con el rol OWNER: creación de cuentas (solo ADMIN) y
+ * promoción de un usuario existente a OWNER (solo ADMIN).
  */
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON)

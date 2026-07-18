@@ -21,7 +21,7 @@ import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 
 /**
- * Everything related to the STAFF role: creation + event affiliation, and disaffiliate.
+ * Todo lo relacionado con el rol STAFF: creación + afiliación a eventos y desafiliación.
  */
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON)

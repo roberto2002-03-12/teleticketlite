@@ -15,8 +15,9 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 
 /**
- * Converts multipart form beans into the internal DTOs consumed by the user services,
- * and extracts raw photo bytes so no {@link FileUpload} ever reaches the service layer.
+ * Convierte los beans de formularios multipart en los DTOs internos consumidos por los servicios
+ * de usuario, y extrae los bytes de foto sin procesar para que ningún {@link FileUpload}
+ * llegue jamás a la capa de servicio.
  */
 public final class UserFormMapper {
 

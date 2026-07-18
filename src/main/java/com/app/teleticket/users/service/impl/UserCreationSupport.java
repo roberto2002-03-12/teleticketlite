@@ -48,13 +48,13 @@ public class UserCreationSupport {
             try {
                 cognito.adminDeleteUser(dto.getEmail());
             } catch (RuntimeException cleanup) {
-                // best-effort; original error retained
+                // mejor esfuerzo; se conserva el error original
             }
             if (entity != null && entity.getPhotoKeyName() != null) {
                 try {
                     photoStorage.delete(entity.getPhotoKeyName());
                 } catch (RuntimeException cleanup) {
-                    // best-effort; original error retained
+                    // mejor esfuerzo; se conserva el error original
                 }
             }
             throw e;

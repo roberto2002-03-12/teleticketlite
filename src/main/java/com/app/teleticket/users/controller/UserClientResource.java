@@ -26,8 +26,8 @@ import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 
 /**
- * Everything related to the CLIENT role: public self-registration, plus the
- * shared "me" self-service endpoints available to any authenticated user.
+ * Todo lo relacionado con el rol CLIENT: auto-registro público, más los
+ * endpoints compartidos "me" de autoservicio disponibles para cualquier usuario autenticado.
  */
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON)

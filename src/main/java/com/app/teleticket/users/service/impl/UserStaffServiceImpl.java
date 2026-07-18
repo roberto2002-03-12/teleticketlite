@@ -94,7 +94,7 @@ public class UserStaffServiceImpl implements UserStaffService {
         try {
             cognito.adminDeleteUser(email);
         } catch (RuntimeException ignored) {
-            // best-effort; original error retained
+            // mejor esfuerzo; se conserva el error original
         }
     }
 
@@ -105,7 +105,7 @@ public class UserStaffServiceImpl implements UserStaffService {
         try {
             photoStorage.delete(keyName);
         } catch (RuntimeException ignored) {
-            // best-effort; original error retained
+            // mejor esfuerzo; se conserva el error original
         }
     }
 }

@@ -40,7 +40,7 @@ public class AuthServiceImpl implements AuthService {
                 return value;
             }
         } catch (RuntimeException ignored) {
-            // claim not present or unreadable
+            // claim no presente o ilegible
         }
         return null;
     }

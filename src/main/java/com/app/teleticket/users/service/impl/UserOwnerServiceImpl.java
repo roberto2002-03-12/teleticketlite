@@ -42,8 +42,8 @@ public class UserOwnerServiceImpl implements UserOwnerService {
         try {
             persistEventOwner(user.getId(), dto.getRuc());
         } catch (RuntimeException e) {
-            // Cognito user was already created by creation.create();
-            // compensate by deleting it before rethrowing.
+            // El usuario de Cognito ya fue creado por creation.create();
+            // compensar eliminándolo antes de relanzar.
             safeCognitoDelete(user.getEmail());
             throw e;
         }
@@ -83,7 +83,7 @@ public class UserOwnerServiceImpl implements UserOwnerService {
         try {
             cognito.adminDeleteUser(email);
         } catch (RuntimeException ignored) {
-            // best-effort; original error retained
+            // mejor esfuerzo; se conserva el error original
         }
     }
 
@@ -91,7 +91,7 @@ public class UserOwnerServiceImpl implements UserOwnerService {
         try {
             cognito.addToGroup(email, group);
         } catch (RuntimeException ignored) {
-            // best-effort; original error retained
+            // mejor esfuerzo; se conserva el error original
         }
     }
 }

@@ -9,9 +9,9 @@ import jakarta.ws.rs.ext.Provider;
 import org.jboss.logging.Logger;
 
 /**
- * Last-resort mapper for any unhandled exception. Produces the standard
- * {@link ApiResponse} error envelope and never leaks stack traces to clients.
- * {@code WebApplicationException} and existing module mappers take precedence.
+ * Mapper de último recurso para cualquier excepción no manejada. Produce el envoltorio
+ * de error estándar {@link ApiResponse} y nunca filtra trazas de pila a los clientes.
+ * {@code WebApplicationException} y los mappers de módulos existentes tienen prioridad.
  */
 @Provider
 public class GlobalExceptionMapper implements ExceptionMapper<Exception> {

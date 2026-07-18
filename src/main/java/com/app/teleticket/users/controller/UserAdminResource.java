@@ -12,7 +12,7 @@ import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 
 /**
- * Everything related to the ADMIN role: account deletion.
+ * Todo lo relacionado con el rol ADMIN: eliminación de cuentas.
  */
 @Path("/users")
 @Produces(MediaType.APPLICATION_JSON)
